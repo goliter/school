@@ -1,7 +1,7 @@
 /* ===============================
    2. 学院表
    =============================== */
-CREATE TABLE college (
+CREATE TABLE IF NOT EXISTS college (
                          college_id   VARCHAR(20) PRIMARY KEY COMMENT '学院编号',
                          college_name VARCHAR(50) NOT NULL COMMENT '学院名称',
                          address      VARCHAR(100),
@@ -11,7 +11,7 @@ CREATE TABLE college (
 /* ===============================
    3. 专业表
    =============================== */
-CREATE TABLE major (
+CREATE TABLE IF NOT EXISTS major (
                        major_code VARCHAR(20) PRIMARY KEY COMMENT '专业编码',
                        major_name VARCHAR(50) NOT NULL,
                        office     VARCHAR(100),
@@ -23,7 +23,7 @@ CREATE TABLE major (
 /* ===============================
    4. 用户账号表（登录核心）
    =============================== */
-CREATE TABLE user_account (
+CREATE TABLE IF NOT EXISTS user_account (
                               user_id     VARCHAR(20) PRIMARY KEY COMMENT '登录账号',
                               password    VARCHAR(255) NOT NULL COMMENT '密码（加密存储）',
                               role        ENUM('student','teacher','admin') NOT NULL COMMENT '角色',
@@ -34,7 +34,7 @@ CREATE TABLE user_account (
 /* ===============================
    5. 学生表
    =============================== */
-CREATE TABLE student (
+CREATE TABLE IF NOT EXISTS student (
                          student_id VARCHAR(20) PRIMARY KEY COMMENT '学号',
                          name       VARCHAR(50) NOT NULL,
                          gender     CHAR(1),
@@ -49,7 +49,7 @@ CREATE TABLE student (
 /* ===============================
    6. 教师表
    =============================== */
-CREATE TABLE teacher (
+CREATE TABLE IF NOT EXISTS teacher (
                          teacher_id VARCHAR(20) PRIMARY KEY COMMENT '工号',
                          name       VARCHAR(50) NOT NULL,
                          title      VARCHAR(30),
@@ -65,7 +65,7 @@ CREATE TABLE teacher (
 /* ===============================
    7. 课程表
    =============================== */
-CREATE TABLE course (
+CREATE TABLE IF NOT EXISTS course (
                         course_id   VARCHAR(20) PRIMARY KEY,
                         course_name VARCHAR(50) NOT NULL,
                         credit      DECIMAL(3,1),
@@ -77,7 +77,7 @@ CREATE TABLE course (
 /* ===============================
    8. 教学班
    =============================== */
-CREATE TABLE teaching_class (
+CREATE TABLE IF NOT EXISTS teaching_class (
                                 class_id   VARCHAR(20) PRIMARY KEY,
                                 class_name VARCHAR(50),
                                 semester   VARCHAR(20),
@@ -90,7 +90,7 @@ CREATE TABLE teaching_class (
 /* ===============================
    9. 教室
    =============================== */
-CREATE TABLE classroom (
+CREATE TABLE IF NOT EXISTS classroom (
                            classroom_id VARCHAR(20) PRIMARY KEY,
                            building     VARCHAR(50),
                            nature       VARCHAR(20),
@@ -100,7 +100,7 @@ CREATE TABLE classroom (
 /* ===============================
    10. 课表
    =============================== */
-CREATE TABLE schedule (
+CREATE TABLE IF NOT EXISTS schedule (
                           class_id     VARCHAR(20),
                           classroom_id VARCHAR(20),
                           week         INT,
@@ -114,7 +114,7 @@ CREATE TABLE schedule (
 /* ===============================
    11. 考试
    =============================== */
-CREATE TABLE exam (
+CREATE TABLE IF NOT EXISTS exam (
                       exam_id      VARCHAR(20) PRIMARY KEY,
                       exam_name    VARCHAR(50),
                       week         INT,
@@ -129,7 +129,7 @@ CREATE TABLE exam (
 /* ===============================
    12. 成绩
    =============================== */
-CREATE TABLE score (
+CREATE TABLE IF NOT EXISTS score (
                        student_id VARCHAR(20),
                        exam_id    VARCHAR(20),
                        score      DECIMAL(5,2),
@@ -141,7 +141,7 @@ CREATE TABLE score (
 /* ===============================
    13. 选修
    =============================== */
-CREATE TABLE elective (
+CREATE TABLE IF NOT EXISTS elective (
                           student_id VARCHAR(20),
                           class_id   VARCHAR(20),
                           evaluation VARCHAR(100),
