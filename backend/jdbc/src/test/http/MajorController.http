@@ -1,0 +1,34 @@
+### 获取所有专业
+GET http://localhost:8080/api/majors
+Content-Type: application/json
+
+### 根据ID获取专业
+GET http://localhost:8080/api/majors/MAJOR_TEST
+Content-Type: application/json
+
+### 添加专业
+POST http://localhost:8080/api/majors
+Content-Type: application/json
+
+{
+  "majorCode": "MAJOR_TEST",
+  "majorName": "测试专业",
+  "office": "测试office",
+  "phone": "010-12345678",
+  "collegeId": "COLLEGE_TEST"
+}
+
+### 更新专业
+PUT http://localhost:8080/api/majors/MAJOR_TEST
+Content-Type: application/json
+
+{
+  "majorName": "更新后的测试专业",
+  "office": "软件学院",
+  "phone": "010-87654321",
+  "collegeId": "COLLEGE_TEST"
+}
+
+### 删除专业
+DELETE http://localhost:8080/api/majors/MAJOR_TEST
+Content-Type: application/json

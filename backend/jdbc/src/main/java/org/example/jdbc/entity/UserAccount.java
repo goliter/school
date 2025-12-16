@@ -13,6 +13,12 @@ public class UserAccount {
     private String role;
     private Integer status;
     private Date createTime;
+    
+    @OneToOne(mappedBy = "userAccount", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    private Student student;
+    
+    @OneToOne(mappedBy = "userAccount", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    private Teacher teacher;
 
     public String getUserId() {
         return userId;
@@ -52,5 +58,21 @@ public class UserAccount {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public Teacher getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
     }
 }

@@ -1,0 +1,38 @@
+### 获取所有课程
+GET http://localhost:8080/api/courses
+Content-Type: application/json
+
+### 根据ID获取课程
+GET http://localhost:8080/api/courses/COURSE_001
+Content-Type: application/json
+
+### 根据专业代码获取课程
+GET http://localhost:8080/api/courses/major/CS
+Content-Type: application/json
+
+### 添加课程
+POST http://localhost:8080/api/courses
+Content-Type: application/json
+
+{
+  "courseId": "COURSE_TEST",
+  "courseName": "测试课程",
+  "credit": 3.0,
+  "majorCode": "MAJOR_TEST",
+  "courseType": "专业必修课"
+}
+
+### 更新课程
+PUT http://localhost:8080/api/courses/COURSE_TEST
+Content-Type: application/json
+
+{
+  "courseName": "更新后的测试课程",
+  "credit": 4.0,
+  "majorCode": "MAJOR_TEST",
+  "courseType": "专业选修课"
+}
+
+### 删除课程
+DELETE http://localhost:8080/api/courses/COURSE_TEST
+Content-Type: application/json

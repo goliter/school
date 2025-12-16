@@ -1,0 +1,39 @@
+### 获取所有成绩
+GET http://localhost:8080/api/scores
+Content-Type: application/json
+
+### 根据学生ID获取成绩
+GET http://localhost:8080/api/scores/student/STU_001
+Content-Type: application/json
+
+### 根据课程ID获取成绩
+GET http://localhost:8080/api/scores/course/COURSE_001
+Content-Type: application/json
+
+### 根据学生ID和课程ID获取成绩
+GET http://localhost:8080/api/scores/STU_001/COURSE_001
+Content-Type: application/json
+
+### 添加成绩
+POST http://localhost:8080/api/scores
+Content-Type: application/json
+
+{
+  "studentId": "STU_TEST",
+  "examId": "EXAM_TEST",
+  "score": 85.5
+}
+
+### 更新成绩
+PUT http://localhost:8080/api/scores
+Content-Type: application/json
+
+{
+  "studentId": "STU_TEST",
+  "examId": "EXAM_TEST",
+  "score": 90.0
+}
+
+### 删除成绩
+DELETE http://localhost:8080/api/scores/STU_TEST/COURSE_TEST
+Content-Type: application/json

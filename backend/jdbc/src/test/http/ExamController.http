@@ -1,0 +1,34 @@
+### 获取所有考试
+GET http://localhost:8080/api/exams
+Content-Type: application/json
+
+### 根据ID获取考试
+GET http://localhost:8080/api/exams/EXAM_001
+Content-Type: application/json
+
+### 添加考试
+POST http://localhost:8080/api/exams
+Content-Type: application/json
+
+{
+  "examId": "EXAM_TEST",
+  "classId": "CLASS_TEST",
+  "classroomId": "ROOM_TEST",
+  "examDate": "2023-06-15",
+  "periods": 120
+}
+
+### 更新考试
+PUT http://localhost:8080/api/exams/EXAM_TEST
+Content-Type: application/json
+
+{
+  "courseId": "COURSE_TEST",
+  "examDate": "2023-06-16",
+  "examType": "期末考试",
+  "duration": 150
+}
+
+### 删除考试
+DELETE http://localhost:8080/api/exams/EXAM_TEST
+Content-Type: application/json

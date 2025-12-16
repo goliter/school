@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.Elective;
 import org.example.jdbc.service.ElectiveService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,44 +18,61 @@ public class ElectiveController {
     private ElectiveService electiveService;
 
     @GetMapping
-    public ResponseEntity<List<Elective>> getAllElectives() {
+    public ResponseEntity<ApiResponse<List<Elective>>> getAllElectives() {
         List<Elective> electives = electiveService.getAllElectives();
-        return new ResponseEntity<>(electives, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(electives));
     }
 
     @GetMapping("/student/{studentId}")
-    public ResponseEntity<List<Elective>> getElectivesByStudentId(@PathVariable String studentId) {
+    public ResponseEntity<ApiResponse<List<Elective>>> getElectivesByStudentId(@PathVariable String studentId) {
         List<Elective> electives = electiveService.getElectivesByStudentId(studentId);
-        return new ResponseEntity<>(electives, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(electives));
     }
 
     @GetMapping("/class/{classId}")
-    public ResponseEntity<List<Elective>> getElectivesByClassId(@PathVariable String classId) {
+    public ResponseEntity<ApiResponse<List<Elective>>> getElectivesByClassId(@PathVariable String classId) {
         List<Elective> electives = electiveService.getElectivesByClassId(classId);
-        return new ResponseEntity<>(electives, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(electives));
     }
 
     @GetMapping("/{studentId}/{classId}")
-    public ResponseEntity<Elective> getElective(@PathVariable String studentId, @PathVariable String classId) {
+    public ResponseEntity<ApiResponse<Elective>> getElective(@PathVariable String studentId, @PathVariable String classId) {
         Elective elective = electiveService.getElective(studentId, classId);
-        return new ResponseEntity<>(elective, HttpStatus.OK);
+        if (elective == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "选课记录不存在"));
+        }
+        return ResponseEntity.ok(ApiResponse.success(elective));
     }
 
     @PostMapping
-    public ResponseEntity<Boolean> addElective(@RequestBody Elective elective) {
+    public ResponseEntity<ApiResponse<Elective>> addElective(@RequestBody Elective elective) {
         boolean result = electiveService.addElective(elective);
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
+        if (result) {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("选课记录添加成功", elective));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "选课记录添加失败"));
     }
 
     @PutMapping
-    public ResponseEntity<Boolean> updateElective(@RequestBody Elective elective) {
+    public ResponseEntity<ApiResponse<Elective>> updateElective(@RequestBody Elective elective) {
         boolean result = electiveService.updateElective(elective);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        if (result) {
+            return ResponseEntity.ok(ApiResponse.success("选课记录更新成功", elective));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "选课记录更新失败"));
     }
 
     @DeleteMapping("/{studentId}/{classId}")
-    public ResponseEntity<Boolean> deleteElective(@PathVariable String studentId, @PathVariable String classId) {
+    public ResponseEntity<ApiResponse<Void>> deleteElective(@PathVariable String studentId, @PathVariable String classId) {
         boolean result = electiveService.deleteElective(studentId, classId);
-        return new ResponseEntity<>(result, HttpStatus.NO_CONTENT);
+        if (result) {
+            return ResponseEntity.ok(ApiResponse.success("选课记录删除成功", null));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "选课记录删除失败"));
     }
 }

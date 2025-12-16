@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.College;
 import org.example.jdbc.service.CollegeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,45 +18,50 @@ public class CollegeController {
     private CollegeService collegeService;
 
     @GetMapping
-    public ResponseEntity<List<College>> getAllColleges() {
+    public ResponseEntity<ApiResponse<List<College>>> getAllColleges() {
         List<College> colleges = collegeService.getAllColleges();
-        return new ResponseEntity<>(colleges, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(colleges));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<College> getCollegeById(@PathVariable("id") String collegeId) {
+    public ResponseEntity<ApiResponse<College>> getCollegeById(@PathVariable("id") String collegeId) {
         College college = collegeService.getCollegeById(collegeId);
         if (college == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "学院不存在"));
         }
-        return new ResponseEntity<>(college, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(college));
     }
 
     @PostMapping
-    public ResponseEntity<Void> addCollege(@RequestBody College college) {
+    public ResponseEntity<ApiResponse<College>> addCollege(@RequestBody College college) {
         boolean success = collegeService.addCollege(college);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("学院添加成功", college));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "学院添加失败"));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateCollege(@PathVariable("id") String collegeId, @RequestBody College college) {
+    public ResponseEntity<ApiResponse<College>> updateCollege(@PathVariable("id") String collegeId, @RequestBody College college) {
         college.setCollegeId(collegeId);
         boolean success = collegeService.updateCollege(college);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("学院更新成功", college));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "学院更新失败"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCollege(@PathVariable("id") String collegeId) {
+    public ResponseEntity<ApiResponse<Void>> deleteCollege(@PathVariable("id") String collegeId) {
         boolean success = collegeService.deleteCollege(collegeId);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("学院删除成功", null));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "学院删除失败"));
     }
 }

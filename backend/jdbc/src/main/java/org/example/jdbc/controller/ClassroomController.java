@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.Classroom;
 import org.example.jdbc.service.ClassroomService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,51 +18,56 @@ public class ClassroomController {
     private ClassroomService classroomService;
 
     @GetMapping
-    public ResponseEntity<List<Classroom>> getAllClassrooms() {
+    public ResponseEntity<ApiResponse<List<Classroom>>> getAllClassrooms() {
         List<Classroom> classrooms = classroomService.getAllClassrooms();
-        return new ResponseEntity<>(classrooms, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(classrooms));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Classroom> getClassroomById(@PathVariable("id") String classroomId) {
+    public ResponseEntity<ApiResponse<Classroom>> getClassroomById(@PathVariable("id") String classroomId) {
         Classroom classroom = classroomService.getClassroomById(classroomId);
         if (classroom == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "教室不存在"));
         }
-        return new ResponseEntity<>(classroom, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(classroom));
     }
 
     @GetMapping("/building/{building}")
-    public ResponseEntity<List<Classroom>> getClassroomsByBuilding(@PathVariable("building") String building) {
+    public ResponseEntity<ApiResponse<List<Classroom>>> getClassroomsByBuilding(@PathVariable("building") String building) {
         List<Classroom> classrooms = classroomService.getClassroomsByBuilding(building);
-        return new ResponseEntity<>(classrooms, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(classrooms));
     }
 
     @PostMapping
-    public ResponseEntity<Void> addClassroom(@RequestBody Classroom classroom) {
+    public ResponseEntity<ApiResponse<Classroom>> addClassroom(@RequestBody Classroom classroom) {
         boolean success = classroomService.addClassroom(classroom);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("教室添加成功", classroom));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "教室添加失败"));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateClassroom(@PathVariable("id") String classroomId, @RequestBody Classroom classroom) {
+    public ResponseEntity<ApiResponse<Classroom>> updateClassroom(@PathVariable("id") String classroomId, @RequestBody Classroom classroom) {
         classroom.setClassroomId(classroomId);
         boolean success = classroomService.updateClassroom(classroom);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("教室更新成功", classroom));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "教室更新失败"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteClassroom(@PathVariable("id") String classroomId) {
+    public ResponseEntity<ApiResponse<Void>> deleteClassroom(@PathVariable("id") String classroomId) {
         boolean success = classroomService.deleteClassroom(classroomId);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("教室删除成功", null));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "教室删除失败"));
     }
 }

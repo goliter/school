@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.Exam;
 import org.example.jdbc.service.ExamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,57 +18,62 @@ public class ExamController {
     private ExamService examService;
 
     @GetMapping
-    public ResponseEntity<List<Exam>> getAllExams() {
+    public ResponseEntity<ApiResponse<List<Exam>>> getAllExams() {
         List<Exam> exams = examService.getAllExams();
-        return new ResponseEntity<>(exams, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(exams));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Exam> getExamById(@PathVariable("id") String examId) {
+    public ResponseEntity<ApiResponse<Exam>> getExamById(@PathVariable("id") String examId) {
         Exam exam = examService.getExamById(examId);
         if (exam == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "考试不存在"));
         }
-        return new ResponseEntity<>(exam, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(exam));
     }
 
     @GetMapping("/class/{classId}")
-    public ResponseEntity<List<Exam>> getExamsByClass(@PathVariable("classId") String classId) {
+    public ResponseEntity<ApiResponse<List<Exam>>> getExamsByClass(@PathVariable("classId") String classId) {
         List<Exam> exams = examService.getExamsByClass(classId);
-        return new ResponseEntity<>(exams, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(exams));
     }
 
     @GetMapping("/classroom/{classroomId}")
-    public ResponseEntity<List<Exam>> getExamsByClassroom(@PathVariable("classroomId") String classroomId) {
+    public ResponseEntity<ApiResponse<List<Exam>>> getExamsByClassroom(@PathVariable("classroomId") String classroomId) {
         List<Exam> exams = examService.getExamsByClassroom(classroomId);
-        return new ResponseEntity<>(exams, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(exams));
     }
 
     @PostMapping
-    public ResponseEntity<Void> addExam(@RequestBody Exam exam) {
+    public ResponseEntity<ApiResponse<Exam>> addExam(@RequestBody Exam exam) {
         boolean success = examService.addExam(exam);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("考试添加成功", exam));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "考试添加失败"));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateExam(@PathVariable("id") String examId, @RequestBody Exam exam) {
+    public ResponseEntity<ApiResponse<Exam>> updateExam(@PathVariable("id") String examId, @RequestBody Exam exam) {
         exam.setExamId(examId);
         boolean success = examService.updateExam(exam);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("考试更新成功", exam));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "考试更新失败"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExam(@PathVariable("id") String examId) {
+    public ResponseEntity<ApiResponse<Void>> deleteExam(@PathVariable("id") String examId) {
         boolean success = examService.deleteExam(examId);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("考试删除成功", null));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "考试删除失败"));
     }
 }

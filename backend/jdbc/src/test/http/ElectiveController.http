@@ -1,0 +1,39 @@
+### 获取所有选课记录
+GET http://localhost:8080/api/electives
+Content-Type: application/json
+
+### 根据学生ID获取选课记录
+GET http://localhost:8080/api/electives/student/STU_001
+Content-Type: application/json
+
+### 根据班级ID获取选课记录
+GET http://localhost:8080/api/electives/class/CLASS_001
+Content-Type: application/json
+
+### 根据学生ID和班级ID获取选课记录
+GET http://localhost:8080/api/electives/STU_001/CLASS_001
+Content-Type: application/json
+
+### 添加选课记录
+POST http://localhost:8080/api/electives
+Content-Type: application/json
+
+{
+  "studentId": "STU_TEST",
+  "classId": "CLASS_TEST",
+  "evaluation": "优秀"
+}
+
+### 更新选课记录
+PUT http://localhost:8080/api/electives
+Content-Type: application/json
+
+{
+  "studentId": "STU_TEST",
+  "classId": "CLASS_TEST",
+  "evaluation": "良好"
+}
+
+### 删除选课记录
+DELETE http://localhost:8080/api/electives/STU_TEST/CLASS_TEST
+Content-Type: application/json

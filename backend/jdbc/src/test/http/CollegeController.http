@@ -1,0 +1,32 @@
+### 获取所有学院
+GET http://localhost:8080/api/colleges
+Content-Type: application/json
+
+### 根据ID获取学院
+GET http://localhost:8080/api/colleges/COLLEGE_TEST
+Content-Type: application/json
+
+### 添加学院
+POST http://localhost:8080/api/colleges
+Content-Type: application/json
+
+{
+  "collegeId": "COLLEGE_TEST",
+  "collegeName": "测试学院",
+  "address": "测试地址",
+  "phone": "010-12345678"
+}
+
+### 更新学院
+PUT http://localhost:8080/api/colleges/COLLEGE_TEST
+Content-Type: application/json
+
+{
+  "collegeName": "更新后的测试学院",
+  "address": "更新后的地址",
+  "phone": "010-87654321"
+}
+
+### 删除学院
+DELETE http://localhost:8080/api/colleges/COLLEGE_TEST
+Content-Type: application/json

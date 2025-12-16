@@ -10,8 +10,7 @@ public class Exam {
     @Column(name = "exam_id")
     private String examId;
     private String examName;
-    private Integer week;
-    private Integer weekday;
+    private String examDate;
     private Integer periods;
     private String classroomId;
     private String classId;
@@ -32,20 +31,13 @@ public class Exam {
         this.examName = examName;
     }
 
-    public Integer getWeek() {
-        return week;
+
+    public String getExamDate() {
+        return examDate;
     }
 
-    public void setWeek(Integer week) {
-        this.week = week;
-    }
-
-    public Integer getWeekday() {
-        return weekday;
-    }
-
-    public void setWeekday(Integer weekday) {
-        this.weekday = weekday;
+    public void setExamDate(String examDate) {
+        this.examDate = examDate;
     }
 
     public Integer getPeriods() {

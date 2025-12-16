@@ -1,0 +1,32 @@
+### 获取所有教室
+GET http://localhost:8080/api/classrooms
+Content-Type: application/json
+
+### 根据ID获取教室
+GET http://localhost:8080/api/classrooms/ROOM_001
+Content-Type: application/json
+
+### 添加教室
+POST http://localhost:8080/api/classrooms
+Content-Type: application/json
+
+{
+  "classroomId": "ROOM_TEST",
+  "building": "第一教学楼",
+  "nature": "普通教室",
+  "capacity": 50
+}
+
+### 更新教室
+PUT http://localhost:8080/api/classrooms/ROOM_TEST
+Content-Type: application/json
+
+{
+  "building": "第一教学楼",
+  "nature": "多媒体教室",
+  "capacity": 60
+}
+
+### 删除教室
+DELETE http://localhost:8080/api/classrooms/ROOM_TEST
+Content-Type: application/json

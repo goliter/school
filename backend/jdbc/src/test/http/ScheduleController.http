@@ -1,0 +1,39 @@
+### 获取所有课表
+GET http://localhost:8080/api/schedules
+Content-Type: application/json
+
+### 根据班级ID获取课表
+GET http://localhost:8080/api/schedules/class/CLASS_TEST
+Content-Type: application/json
+
+### 根据教室ID获取课表
+GET http://localhost:8080/api/schedules/classroom/ROOM_TEST
+Content-Type: application/json
+
+### 添加课表
+POST http://localhost:8080/api/schedules
+Content-Type: application/json
+
+{
+  "classId": "CLASS_TEST",
+  "classroomId": "ROOM_TEST",
+  "week": 1,
+  "weekday": 1,
+  "periods": 2
+}
+
+### 更新课表
+PUT http://localhost:8080/api/schedules
+Content-Type: application/json
+
+{
+  "classId": "CLASS_TEST",
+  "classroomId": "ROOM_TEST",
+  "week": 1,
+  "weekday": 2,
+  "periods": 2
+}
+
+### 删除课表
+DELETE http://localhost:8080/api/schedules?classId=CLASS_TEST&week=1&weekday=1&periods=2
+Content-Type: application/json

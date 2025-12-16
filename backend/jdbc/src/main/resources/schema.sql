@@ -117,8 +117,7 @@ CREATE TABLE IF NOT EXISTS schedule (
 CREATE TABLE IF NOT EXISTS exam (
                       exam_id      VARCHAR(20) PRIMARY KEY,
                       exam_name    VARCHAR(50),
-                      week         INT,
-                      weekday      INT,
+                      exam_date    VARCHAR(20),
                       periods       INT,
                       classroom_id VARCHAR(20),
                       class_id     VARCHAR(20),

@@ -1,0 +1,34 @@
+### 获取所有教学班
+GET http://localhost:8080/api/teaching-classes
+Content-Type: application/json
+
+### 根据ID获取教学班
+GET http://localhost:8080/api/teaching-classes/CLASS_001
+Content-Type: application/json
+
+### 添加教学班
+POST http://localhost:8080/api/teaching-classes
+Content-Type: application/json
+
+{
+  "classId": "CLASS_TEST",
+  "className": "测试教学班",
+  "semester": "2025-2026第一学期",
+  "courseId": "COURSE_TEST",
+  "teacherId": "TEACHER_TEST"
+}
+
+### 更新教学班
+PUT http://localhost:8080/api/teaching-classes/CLASS_TEST
+Content-Type: application/json
+
+{
+  "className": "更新后的测试教学班",
+  "semester": "2025-2026第一学期",
+  "courseId": "COURSE_TEST",
+  "teacherId": "TEACHER_TEST"
+}
+
+### 删除教学班
+DELETE http://localhost:8080/api/teaching-classes/CLASS_TEST
+Content-Type: application/json

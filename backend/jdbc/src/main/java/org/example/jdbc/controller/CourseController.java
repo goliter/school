@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.Course;
 import org.example.jdbc.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,51 +18,56 @@ public class CourseController {
     private CourseService courseService;
 
     @GetMapping
-    public ResponseEntity<List<Course>> getAllCourses() {
+    public ResponseEntity<ApiResponse<List<Course>>> getAllCourses() {
         List<Course> courses = courseService.getAllCourses();
-        return new ResponseEntity<>(courses, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(courses));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Course> getCourseById(@PathVariable("id") String courseId) {
+    public ResponseEntity<ApiResponse<Course>> getCourseById(@PathVariable("id") String courseId) {
         Course course = courseService.getCourseById(courseId);
         if (course == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "课程不存在"));
         }
-        return new ResponseEntity<>(course, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(course));
     }
 
     @GetMapping("/major/{majorCode}")
-    public ResponseEntity<List<Course>> getCoursesByMajor(@PathVariable("majorCode") String majorCode) {
+    public ResponseEntity<ApiResponse<List<Course>>> getCoursesByMajor(@PathVariable("majorCode") String majorCode) {
         List<Course> courses = courseService.getCoursesByMajor(majorCode);
-        return new ResponseEntity<>(courses, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success(courses));
     }
 
     @PostMapping
-    public ResponseEntity<Void> addCourse(@RequestBody Course course) {
+    public ResponseEntity<ApiResponse<Course>> addCourse(@RequestBody Course course) {
         boolean success = courseService.addCourse(course);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("课程添加成功", course));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "课程添加失败"));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateCourse(@PathVariable("id") String courseId, @RequestBody Course course) {
+    public ResponseEntity<ApiResponse<Course>> updateCourse(@PathVariable("id") String courseId, @RequestBody Course course) {
         course.setCourseId(courseId);
         boolean success = courseService.updateCourse(course);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("课程更新成功", course));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "课程更新失败"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCourse(@PathVariable("id") String courseId) {
+    public ResponseEntity<ApiResponse<Void>> deleteCourse(@PathVariable("id") String courseId) {
         boolean success = courseService.deleteCourse(courseId);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("课程删除成功", null));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "课程删除失败"));
     }
 }

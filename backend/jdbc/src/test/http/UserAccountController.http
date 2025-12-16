@@ -1,0 +1,41 @@
+### 获取所有用户账号
+GET http://localhost:8080/api/user-accounts
+Content-Type: application/json
+
+### 根据ID获取用户账号
+GET http://localhost:8080/api/user-accounts/admin
+Content-Type: application/json
+
+### 添加用户账号
+POST http://localhost:8080/api/user-accounts
+Content-Type: application/json
+
+{
+  "userId": "admin",
+  "password": "admin",
+  "role": "admin",
+  "status": 1
+}
+
+### 更新用户账号
+PUT http://localhost:8080/api/user-accounts/USER_TEST
+Content-Type: application/json
+
+{
+  "password": "newpassword456",
+  "role": "teacher",
+  "status": 1
+}
+
+### 删除用户账号
+DELETE http://localhost:8080/api/user-accounts/USER_TEST
+Content-Type: application/json
+
+### 用户登录
+POST http://localhost:8080/api/user-accounts/login
+Content-Type: application/json
+
+{
+  "userId": "USER_TEST",
+  "password": "newpassword456"
+}

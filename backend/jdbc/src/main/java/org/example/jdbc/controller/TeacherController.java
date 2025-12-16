@@ -1,5 +1,7 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.dto.TeacherDto;
+import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.Teacher;
 import org.example.jdbc.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,51 +19,56 @@ public class TeacherController {
     private TeacherService teacherService;
 
     @GetMapping
-    public ResponseEntity<List<Teacher>> getAllTeachers() {
+    public ResponseEntity<ApiResponse<List<Teacher>>> getAllTeachers() {
         List<Teacher> teachers = teacherService.getAllTeachers();
-        return new ResponseEntity<>(teachers, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success("获取教师列表成功", teachers));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Teacher> getTeacherById(@PathVariable("id") String teacherId) {
+    public ResponseEntity<ApiResponse<Teacher>> getTeacherById(@PathVariable("id") String teacherId) {
         Teacher teacher = teacherService.getTeacherById(teacherId);
         if (teacher == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "教师不存在"));
         }
-        return new ResponseEntity<>(teacher, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success("获取教师成功", teacher));
     }
 
     @GetMapping("/major/{majorCode}")
-    public ResponseEntity<List<Teacher>> getTeachersByMajor(@PathVariable("majorCode") String majorCode) {
+    public ResponseEntity<ApiResponse<List<Teacher>>> getTeachersByMajor(@PathVariable("majorCode") String majorCode) {
         List<Teacher> teachers = teacherService.getTeachersByMajor(majorCode);
-        return new ResponseEntity<>(teachers, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success("获取专业教师列表成功", teachers));
     }
 
     @PostMapping
-    public ResponseEntity<Void> addTeacher(@RequestBody Teacher teacher) {
-        boolean success = teacherService.addTeacher(teacher);
+    public ResponseEntity<ApiResponse<Void>> addTeacher(@RequestBody TeacherDto teacherDto) {
+        boolean success = teacherService.addTeacher(teacherDto);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("教师添加成功", null));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "教师添加失败"));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateTeacher(@PathVariable("id") String teacherId, @RequestBody Teacher teacher) {
-        teacher.setTeacherId(teacherId);
-        boolean success = teacherService.updateTeacher(teacher);
+    public ResponseEntity<ApiResponse<Void>> updateTeacher(@PathVariable("id") String teacherId, @RequestBody TeacherDto teacherDto) {
+        teacherDto.setTeacherId(teacherId);
+        boolean success = teacherService.updateTeacher(teacherDto);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("教师更新成功", null));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "教师更新失败"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTeacher(@PathVariable("id") String teacherId) {
+    public ResponseEntity<ApiResponse<Void>> deleteTeacher(@PathVariable("id") String teacherId) {
         boolean success = teacherService.deleteTeacher(teacherId);
         if (success) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(ApiResponse.success("教师删除成功"));
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "教师删除失败"));
     }
 }

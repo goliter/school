@@ -1,0 +1,44 @@
+### 获取所有教师
+GET http://localhost:8080/api/teachers
+Content-Type: application/json
+
+### 根据ID获取教师
+GET http://localhost:8080/api/teachers/TEACHER_001
+Content-Type: application/json
+
+### 添加教师
+POST http://localhost:8080/api/teachers
+Content-Type: application/json
+
+{
+  "teacherId": "TEACHER_TEST",
+  "name": "测试教师",
+  "title": "副教授",
+  "office": "测试办公室",
+  "phone": "13900139000",
+  "duty": "教师",
+  "majorCode": "MAJOR_TEST",
+  "userId": "USER_TEACHER",
+  "password": "password123",
+  "status": 1
+}
+
+### 更新教师
+PUT http://localhost:8080/api/teachers/TEACHER_TEST
+Content-Type: application/json
+
+{
+  "name": "更新后的测试教师",
+  "title": "教授",
+  "office": "计算机系",
+  "phone": "13900139001",
+  "duty": "教师",
+  "majorCode": "MAJOR_TEST",
+  "userId": "USER_TEACHER",
+  "password": "password123",
+  "status": 1
+}
+
+### 删除教师
+DELETE http://localhost:8080/api/teachers/TEACHER_TEST
+Content-Type: application/json

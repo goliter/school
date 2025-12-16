@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 public class CollegeServiceImpl implements CollegeService {
+    private static final Logger LOGGER = Logger.getLogger(CollegeServiceImpl.class.getName());
     private final CollegeRepository collegeRepository;
 
     @Autowired
@@ -33,6 +35,9 @@ public class CollegeServiceImpl implements CollegeService {
             collegeRepository.save(college);
             return true;
         } catch (Exception e) {
+            LOGGER.severe("学院添加失败: " + e.getMessage());
+            LOGGER.severe("异常详情: ");
+            e.printStackTrace();
             return false;
         }
     }
