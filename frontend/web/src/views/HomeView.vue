@@ -1,11 +1,48 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { collegeApi, type College } from "../api";
+import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
+import {
+  collegeApi,
+  type College,
+  isLoggedIn,
+  currentUser,
+  currentUserRole,
+  logout,
+} from "../api";
 
+const router = useRouter();
 // 创建响应式数据
 const colleges = ref<College[]>([]);
 const loading = ref(false);
 const error = ref("");
+
+// 根据角色显示不同的用户信息
+const displayName = computed(() => {
+  if (!currentUser.value) return "用户";
+
+  const role = currentUserRole.value;
+  let name = "";
+
+  switch (role) {
+    case "admin":
+      return "管理员";
+    case "student":
+      name = currentUser.value.student?.name || "";
+      return `学生 ${name}`;
+    case "teacher":
+      name = currentUser.value.teacher?.name || "";
+      return `教师 ${name}`;
+    default:
+      name = currentUser.value.name || "";
+      return name || "用户";
+  }
+});
+
+// 登出功能
+const handleLogout = () => {
+  logout();
+  router.push("/login");
+};
 
 // 在组件挂载时获取学院列表
 onMounted(async () => {
@@ -31,7 +68,15 @@ onMounted(async () => {
           <h1>东北林业大学教务系统</h1>
         </div>
         <nav class="nav">
-          <router-link to="/login" class="login-btn">登录</router-link>
+          <template v-if="isLoggedIn">
+            <div class="user-info">
+              <span class="username">{{ displayName }}</span>
+              <button class="logout-btn" @click="handleLogout">登出</button>
+            </div>
+          </template>
+          <template v-else>
+            <router-link to="/login" class="login-btn">登录</router-link>
+          </template>
         </nav>
       </div>
     </header>
@@ -187,6 +232,35 @@ onMounted(async () => {
 
 .login-btn:hover {
   background-color: #004499;
+}
+
+/* 用户信息和登出按钮 */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.username {
+  color: white;
+  font-weight: 500;
+}
+
+.logout-btn {
+  background-color: transparent;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid white;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* 英雄区域 */

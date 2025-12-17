@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import { getToken } from "./auth";
 
 // API响应类型定义
 export interface ApiResponse<T = any> {
@@ -20,11 +21,11 @@ const http: AxiosInstance = axios.create({
 // 请求拦截器
 http.interceptors.request.use(
   (config: AxiosRequestConfig) => {
-    // 可以在这里添加认证token等
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // 添加认证token
+    const token = getToken();
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -38,7 +39,7 @@ http.interceptors.response.use(
     // 统一处理响应
     const res = response.data;
     // 由于后端ApiResponse没有success字段，根据code判断请求是否成功
-    if (res.code  >= 200 && res.code < 300) {
+    if (res.code >= 200 && res.code < 300) {
       return res;
     } else {
       // 处理业务错误

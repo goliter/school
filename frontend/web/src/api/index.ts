@@ -13,3 +13,4 @@ export * from "./electiveApi";
 export * from "./classroomApi";
 export * from "./userAccountApi";
 export * from "./courseApi";
+export * from "./auth";

@@ -1,17 +1,52 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, reactive } from "vue";
+import { useRouter } from "vue-router";
+import { userAccountApi, login } from "../api";
+import type { LoginRequest, UserAccount } from "../api/userAccountApi";
 
+const router = useRouter();
 const username = ref("");
 const password = ref("");
 const userType = ref("student"); // student, teacher or admin
+const errorMsg = ref("");
 
-const handleLogin = () => {
-  // 这里可以添加登录逻辑
-  console.log("Login attempt:", {
-    username: username.value,
-    password: password.value,
-    userType: userType.value,
-  });
+const handleLogin = async () => {
+  // 重置错误信息
+  errorMsg.value = "";
+
+  try {
+    // 准备登录请求数据
+    const loginData: LoginRequest = {
+      userId: username.value,
+      password: password.value,
+    };
+
+    // 调用登录API
+    const response = await userAccountApi.login(loginData);
+
+    // 保存登录状态
+    login(response as UserAccount);
+
+    // 根据用户角色跳转到对应模块页面
+    const role = response.role;
+    switch (role) {
+      case "student":
+        router.push("/student");
+        break;
+      case "teacher":
+        router.push("/teacher");
+        break;
+      case "admin":
+        router.push("/admin");
+        break;
+      default:
+        router.push("/");
+    }
+  } catch (error: any) {
+    // 处理登录失败
+    errorMsg.value = error.message || "登录失败，请检查账号密码";
+    console.error("Login error:", error);
+  }
 };
 </script>
 
@@ -39,6 +74,11 @@ const handleLogin = () => {
           </div>
 
           <div class="login-form">
+            <!-- 错误信息显示 -->
+            <div v-if="errorMsg" class="error-message">
+              {{ errorMsg }}
+            </div>
+
             <!-- 用户类型选择 -->
             <div class="user-type-selector">
               <label>
@@ -94,7 +134,6 @@ const handleLogin = () => {
             </div>
 
             <div class="form-options">
-              
               <router-link to="/forgot-password" class="forgot-password"
                 >忘记密码？</router-link
               >
@@ -239,6 +278,17 @@ const handleLogin = () => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+/* 错误信息 */
+.error-message {
+  background-color: #fff2f0;
+  color: #cf1322;
+  padding: 0.8rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  border: 1px solid #ffccc7;
+  margin-bottom: 0.5rem;
 }
 
 .form-group {

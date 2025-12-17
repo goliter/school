@@ -37,5 +37,5 @@ Content-Type: application/json
 
 {
   "userId": "USER_TEST",
-  "password": "newpassword456"
+  "password": "password123"
 }

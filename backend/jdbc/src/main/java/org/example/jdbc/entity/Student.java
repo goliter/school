@@ -1,5 +1,6 @@
 package org.example.jdbc.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.Date;
 
@@ -17,6 +18,7 @@ public class Student {
     
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private UserAccount userAccount;
 
     public String getStudentId() {
