@@ -1,4 +1,25 @@
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { collegeApi, type College } from "../api";
+
+// 创建响应式数据
+const colleges = ref<College[]>([]);
+const loading = ref(false);
+const error = ref("");
+
+// 在组件挂载时获取学院列表
+onMounted(async () => {
+  try {
+    loading.value = true;
+    const response = await collegeApi.getAllColleges();
+    colleges.value = response || [];
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : "获取学院列表失败";
+    console.error("获取学院列表失败:", err);
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <template>
@@ -82,6 +103,30 @@
           </div>
         </div>
       </section>
+
+      <!-- 学院列表展示（API调用示例） -->
+      <section class="colleges-section">
+        <div class="colleges-content">
+          <h3>学院列表（API调用示例）</h3>
+          <div v-if="loading" class="loading">加载中...</div>
+          <div v-else-if="error" class="error">{{ error }}</div>
+          <div v-else-if="colleges.length === 0" class="no-data">
+            暂无学院数据
+          </div>
+          <div v-else class="colleges-list">
+            <div
+              class="college-item"
+              v-for="college in colleges"
+              :key="college.collegeId"
+            >
+              <h4>{{ college.collegeName }}</h4>
+              <p>学院代码: {{ college.collegeId }}</p>
+              <p>地址: {{ college.address }}</p>
+              <p>电话: {{ college.phone }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- 页脚 -->
@@ -96,7 +141,7 @@
 
 <style scoped>
 .container {
-  font-family: 'Microsoft YaHei', sans-serif;
+  font-family: "Microsoft YaHei", sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -256,6 +301,69 @@
 
 .feature-icon {
   font-size: 2.5rem;
+}
+
+/* 学院列表展示 */
+.colleges-section {
+  padding: 4rem 0;
+  background-color: white;
+}
+
+.colleges-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.colleges-content h3 {
+  color: #003366;
+  font-size: 2rem;
+  margin: 0 0 2rem;
+}
+
+.loading {
+  font-size: 1.2rem;
+  color: #0066cc;
+  padding: 2rem;
+}
+
+.error {
+  font-size: 1.2rem;
+  color: #dc3545;
+  padding: 2rem;
+}
+
+.no-data {
+  font-size: 1.2rem;
+  color: #6c757d;
+  padding: 2rem;
+}
+
+.colleges-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.college-item {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.college-item h4 {
+  color: #003366;
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+}
+
+.college-item p {
+  margin: 0.5rem 0;
+  color: #333;
 }
 
 /* 页脚 */

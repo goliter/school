@@ -94,10 +94,7 @@ const handleLogin = () => {
             </div>
 
             <div class="form-options">
-              <label class="remember-me">
-                <input type="checkbox" />
-                <span>记住密码</span>
-              </label>
+              
               <router-link to="/forgot-password" class="forgot-password"
                 >忘记密码？</router-link
               >
