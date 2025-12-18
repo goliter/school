@@ -1,15 +1,24 @@
 import { request } from "./http";
 
+// 单个课表时间信息类型定义
+export interface ScheduleTime {
+  year: number;
+  month: number;
+  day: number;
+  period: string;
+}
+
+// 课表信息类型定义
+export interface ScheduleInfo {
+  times: ScheduleTime[];
+}
+
 // 课程表数据类型定义
 export interface Schedule {
   id?: number;
   classId: string;
   classroomId: string;
-  week: number;
-  weekday: number;
-  periods: string;
-  startDate: string;
-  endDate: string;
+  scheduleInfo: ScheduleInfo;
 }
 
 // 课程表API服务
@@ -18,7 +27,7 @@ export const scheduleApi = {
    * 获取所有课程表
    */
   getAllSchedules: () => {
-    return request.get<Schedule[]>('/schedules');
+    return request.get<Schedule[]>("/schedules");
   },
 
   /**
@@ -42,7 +51,11 @@ export const scheduleApi = {
    * @param schedule 课程表数据
    */
   addSchedule: (schedule: Schedule) => {
-    return request.post<Schedule>('/schedules', schedule);
+    const scheduleData = {
+      ...schedule,
+      scheduleInfo: JSON.stringify(schedule.scheduleInfo),
+    };
+    return request.post<Schedule>("/schedules", scheduleData);
   },
 
   /**
@@ -50,14 +63,32 @@ export const scheduleApi = {
    * @param schedule 课程表数据
    */
   updateSchedule: (schedule: Schedule) => {
-    return request.put<Schedule>('/schedules', schedule);
+    const scheduleData = {
+      ...schedule,
+      scheduleInfo: JSON.stringify(schedule.scheduleInfo),
+    };
+    return request.put<Schedule>("/schedules", scheduleData);
   },
 
   /**
-   * 删除课程表
-   * @param params 删除参数
+   * 删除整个课程表
+   * @param id 课程表ID
    */
-  deleteSchedule: (params: { classId: string; week: number; weekday: number; periods: string }) => {
-    return request.delete('/schedules', { params });
+  deleteSchedule: (id: number) => {
+    return request.delete(`/schedules/${id}`);
+  },
+
+  /**
+   * 获取当前教师的课程安排
+   */
+  getTeacherSchedules: (teacherId: string) => {
+    return request.get<any[]>(`/schedules/teacher/${teacherId}`);
+  },
+
+  /**
+   * 获取当前学生的课程安排
+   */
+  getStudentSchedules: (studentId: string) => {
+    return request.get<any[]>(`/schedules/student/${studentId}`);
   },
 };

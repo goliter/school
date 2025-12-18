@@ -69,8 +69,11 @@
     <main class="admin-main">
       <div class="main-header">
         <h1>{{ currentPageTitle }}</h1>
-        <div class="user-info">
-          <span>欢迎，管理员</span>
+        <div class="header-actions">
+          <router-link to="/" class="back-home-btn">返回首页</router-link>
+          <div class="user-info">
+            <span>欢迎，管理员</span>
+          </div>
         </div>
       </div>
       <div class="main-content">
@@ -96,7 +99,7 @@ const currentPageTitle = computed(() => {
     adminClassrooms: "教室管理",
     adminTeachingClasses: "教学班管理",
     adminExams: "考试管理",
-    adminSchedules: "课表管理"
+    adminSchedules: "课表管理",
   };
   return titles[route.name as string] || "管理员系统";
 });
@@ -183,6 +186,28 @@ const currentPageTitle = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* 头部操作区域样式 */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* 返回首页按钮样式 */
+.back-home-btn {
+  background-color: #3498db;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.back-home-btn:hover {
+  background-color: #2980b9;
 }
 
 .main-header h1 {

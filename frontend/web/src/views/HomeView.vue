@@ -38,6 +38,38 @@ const displayName = computed(() => {
   }
 });
 
+// 根据用户角色计算模块页面路径
+const userModulePath = computed(() => {
+  const role = currentUserRole.value;
+
+  switch (role) {
+    case "admin":
+      return "/admin";
+    case "student":
+      return "/student";
+    case "teacher":
+      return "/teacher";
+    default:
+      return "/";
+  }
+});
+
+// 根据用户角色计算模块按钮文本
+const moduleButtonText = computed(() => {
+  const role = currentUserRole.value;
+
+  switch (role) {
+    case "admin":
+      return "进入管理员系统";
+    case "student":
+      return "进入学生系统";
+    case "teacher":
+      return "进入教师系统";
+    default:
+      return "进入系统";
+  }
+});
+
 // 登出功能
 const handleLogout = () => {
   logout();
@@ -71,6 +103,9 @@ onMounted(async () => {
           <template v-if="isLoggedIn">
             <div class="user-info">
               <span class="username">{{ displayName }}</span>
+              <router-link :to="userModulePath" class="module-btn">{{
+                moduleButtonText
+              }}</router-link>
               <button class="logout-btn" @click="handleLogout">登出</button>
             </div>
           </template>
@@ -261,6 +296,21 @@ onMounted(async () => {
 
 .logout-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 模块入口按钮样式 */
+.module-btn {
+  background-color: #0066cc;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.module-btn:hover {
+  background-color: #004499;
 }
 
 /* 英雄区域 */

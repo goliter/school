@@ -8,6 +8,7 @@ public interface ExamService {
     Exam getExamById(String examId);
     List<Exam> getExamsByClass(String classId);
     List<Exam> getExamsByClassroom(String classroomId);
+    List<Exam> getExamsByTeacher(String teacherId);
     boolean addExam(Exam exam);
     boolean updateExam(Exam exam);
     boolean deleteExam(String examId);

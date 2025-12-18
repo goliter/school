@@ -7,6 +7,7 @@ public interface CourseService {
     List<Course> getAllCourses();
     Course getCourseById(String courseId);
     List<Course> getCoursesByMajor(String majorCode);
+    List<Course> getCoursesByTeacher(String teacherId);
     boolean addCourse(Course course);
     boolean updateCourse(Course course);
     boolean deleteCourse(String courseId);

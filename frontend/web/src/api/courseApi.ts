@@ -5,10 +5,9 @@ export interface Course {
   courseId: string;
   majorCode: string;
   courseName: string;
-  credits: number;
+  credit: number;
   courseType: string;
-  teachingHours: number;
-  description: string;
+  scheduleInfo?: string | any; // 课程安排信息，可能是JSON字符串或对象
 }
 
 // 课程API服务
@@ -17,7 +16,7 @@ export const courseApi = {
    * 获取所有课程
    */
   getAllCourses: () => {
-    return request.get<Course[]>('/courses');
+    return request.get<Course[]>("/courses");
   },
 
   /**
@@ -41,7 +40,7 @@ export const courseApi = {
    * @param course 课程数据
    */
   addCourse: (course: Course) => {
-    return request.post<Course>('/courses', course);
+    return request.post<Course>("/courses", course);
   },
 
   /**
@@ -59,5 +58,13 @@ export const courseApi = {
    */
   deleteCourse: (courseId: string) => {
     return request.delete(`/courses/${courseId}`);
+  },
+
+  /**
+   * 根据教师ID获取课程
+   * @param teacherId 教师ID
+   */
+  getCoursesByTeacher: (teacherId: string) => {
+    return request.get<Course[]>(`/courses/teacher/${teacherId}`);
   },
 };

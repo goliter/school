@@ -4,23 +4,16 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "schedule")
-@IdClass(ScheduleId.class)
 public class Schedule {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(name = "class_id")
     private String classId;
-    @Id
     @Column(name = "classroom_id")
     private String classroomId;
-    @Id
-    @Column(name = "week")
-    private Integer week;
-    @Id
-    @Column(name = "weekday")
-    private Integer weekday;
-    @Id
-    @Column(name = "periods")
-    private Integer periods;
+    @Column(name = "schedule_info", columnDefinition = "JSON")
+    private String scheduleInfo;
 
     public String getClassId() {
         return classId;
@@ -28,6 +21,14 @@ public class Schedule {
 
     public void setClassId(String classId) {
         this.classId = classId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getClassroomId() {
@@ -38,27 +39,11 @@ public class Schedule {
         this.classroomId = classroomId;
     }
 
-    public Integer getWeek() {
-        return week;
+    public String getScheduleInfo() {
+        return scheduleInfo;
     }
 
-    public void setWeek(Integer week) {
-        this.week = week;
-    }
-
-    public Integer getWeekday() {
-        return weekday;
-    }
-
-    public void setWeekday(Integer weekday) {
-        this.weekday = weekday;
-    }
-
-    public Integer getPeriods() {
-        return periods;
-    }
-
-    public void setPeriods(Integer periods) {
-        this.periods = periods;
+    public void setScheduleInfo(String scheduleInfo) {
+        this.scheduleInfo = scheduleInfo;
     }
 }

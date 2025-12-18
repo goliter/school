@@ -39,6 +39,12 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success(courses));
     }
 
+    @GetMapping("/teacher/{teacherId}")
+    public ResponseEntity<ApiResponse<List<Course>>> getCoursesByTeacher(@PathVariable("teacherId") String teacherId) {
+        List<Course> courses = courseService.getCoursesByTeacher(teacherId);
+        return ResponseEntity.ok(ApiResponse.success(courses));
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<Course>> addCourse(@RequestBody Course course) {
         boolean success = courseService.addCourse(course);

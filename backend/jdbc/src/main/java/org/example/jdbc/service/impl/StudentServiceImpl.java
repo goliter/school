@@ -123,8 +123,24 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public boolean deleteStudent(String studentId) {
         if (studentRepository.existsById(studentId)) {
-            studentRepository.deleteById(studentId);
-            return true;
+            try {
+                // 获取Student对象
+                Student student = studentRepository.findById(studentId).orElse(null);
+                if (student != null) {
+                    // 获取对应的UserAccount
+                    UserAccount userAccount = student.getUserAccount();
+                    if (userAccount != null) {
+                        // 删除UserAccount
+                        userAccountRepository.delete(userAccount);
+                    }
+                    // 删除Student
+                    studentRepository.deleteById(studentId);
+                }
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
         return false;
     }

@@ -1,8 +1,8 @@
 <template>
-  <div class="exam-management">
-    <div class="page-header">
+  <div class="exam-management-container">
+    <div class="management-header">
       <h2>考试管理</h2>
-      <button @click="showAddModal = true" class="add-btn">
+      <button @click="openAddModal" class="btn btn-primary">
         <i class="icon-plus"></i> 添加考试
       </button>
     </div>
@@ -25,26 +25,24 @@
           <thead>
             <tr>
               <th>考试ID</th>
-              <th>考试类型</th>
+              <th>考试名称</th>
               <th>班级</th>
               <th>教室</th>
               <th>考试日期</th>
-              <th>开始时间</th>
-              <th>结束时间</th>
-              <th>监考教师</th>
+              <th>节次</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="exam in filteredExams" :key="exam.examId">
               <td>{{ exam.examId }}</td>
-              <td>{{ exam.examType }}</td>
+              <td>{{ exam.examName }}</td>
               <td>{{ getClassName(exam.classId) }}</td>
               <td>{{ getClassroomName(exam.classroomId) }}</td>
-              <td>{{ formatDate(exam.examDate) }}</td>
-              <td>{{ exam.startTime }}</td>
-              <td>{{ exam.endTime }}</td>
-              <td>{{ getTeacherName(exam.invigilatorId) }}</td>
+              <td>{{ formatExamDate(exam.examDateInfo) }}</td>
+              <td>
+                {{ exam.examDateInfo ? exam.examDateInfo.period : "未设置" }}
+              </td>
               <td class="action-buttons">
                 <button @click="editExam(exam)" class="edit-btn">
                   <i class="icon-edit"></i> 编辑
@@ -106,68 +104,65 @@
                   :key="classroom.classroomId"
                   :value="classroom.classroomId"
                 >
-                  {{ classroom.building }} {{ classroom.roomNumber }}
+                  {{ classroom.building }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="examType">考试类型</label>
+              <label for="examName">考试名称</label>
               <input
-                id="examType"
-                v-model="formData.examType"
+                id="examName"
+                v-model="formData.examName"
                 type="text"
-                placeholder="请输入考试类型（如：期中考试、期末考试、补考等）"
+                placeholder="请输入考试名称（如：期中考试、期末考试、补考等）"
                 required
               />
             </div>
 
             <div class="form-group">
-              <label for="examDate">考试日期</label>
+              <label for="examYear">年份</label>
               <input
-                id="examDate"
-                v-model="formData.examDate"
-                type="date"
+                id="examYear"
+                v-model.number="formData.examDateInfo.year"
+                type="number"
                 required
               />
             </div>
 
             <div class="form-group">
-              <label for="startTime">开始时间</label>
+              <label for="examMonth">月份</label>
               <input
-                id="startTime"
-                v-model="formData.startTime"
-                type="time"
+                id="examMonth"
+                v-model.number="formData.examDateInfo.month"
+                type="number"
+                min="1"
+                max="12"
                 required
               />
             </div>
 
             <div class="form-group">
-              <label for="endTime">结束时间</label>
+              <label for="examDay">日期</label>
               <input
-                id="endTime"
-                v-model="formData.endTime"
-                type="time"
+                id="examDay"
+                v-model.number="formData.examDateInfo.day"
+                type="number"
+                min="1"
+                max="31"
                 required
               />
             </div>
 
             <div class="form-group">
-              <label for="invigilatorId">监考教师</label>
-              <select
-                id="invigilatorId"
-                v-model="formData.invigilatorId"
+              <label for="examPeriod">节次</label>
+              <input
+                id="examPeriod"
+                v-model.number="formData.examDateInfo.period"
+                type="number"
+                placeholder="请输入节次（如：1-2节输入1，3-4节输入3）"
                 required
-              >
-                <option value="">请选择监考教师</option>
-                <option
-                  v-for="teacher in teachers"
-                  :key="teacher.teacherId"
-                  :value="teacher.teacherId"
-                >
-                  {{ teacher.teacherName }}
-                </option>
-              </select>
+              />
             </div>
 
             <div class="form-actions">
@@ -187,30 +182,29 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { examApi, Exam } from "../../api/examApi";
+import { examApi, Exam, ExamDateInfo } from "../../api/examApi";
 import { teachingClassApi } from "../../api/teachingClassApi";
 import { classroomApi } from "../../api/classroomApi";
-import { teacherApi } from "../../api/teacherApi";
 
 // 响应式数据
 const loading = ref(true);
 const exams = ref<Exam[]>([]);
 const teachingClasses = ref<any[]>([]);
 const classrooms = ref<any[]>([]);
-const teachers = ref<any[]>([]);
 const searchKeyword = ref("");
 const showModal = ref(false);
-const showAddModal = ref(false);
 const isEditing = ref(false);
 const formData = ref<Exam>({
   examId: "",
   classId: "",
   classroomId: "",
-  examType: "",
-  examDate: "",
-  startTime: "",
-  endTime: "",
-  invigilatorId: "",
+  examName: "",
+  examDateInfo: {
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    day: new Date().getDate(),
+    period: 1,
+  },
 });
 
 // 计算属性：筛选后的考试列表
@@ -233,28 +227,34 @@ const getClassName = (classId: string): string => {
 // 获取教室名称
 const getClassroomName = (classroomId: string): string => {
   const classroom = classrooms.value.find((c) => c.classroomId === classroomId);
-  return classroom
-    ? `${classroom.building} ${classroom.roomNumber}`
-    : "未知教室";
+  return classroom ? classroom.building : "未知教室";
 };
 
-// 获取教师名称
-const getTeacherName = (teacherId: string): string => {
-  const teacher = teachers.value.find((t) => t.teacherId === teacherId);
-  return teacher ? teacher.teacherName : "未知教师";
-};
-
-// 格式化日期
-const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString();
+// 格式化考试日期
+const formatExamDate = (dateInfo: ExamDateInfo | null): string => {
+  if (!dateInfo) return "未设置日期";
+  return `${dateInfo.year}-${String(dateInfo.month).padStart(2, "0")}-${String(
+    dateInfo.day
+  ).padStart(2, "0")}`;
 };
 
 // 加载所有考试
 const fetchExams = async () => {
   try {
     const data = await examApi.getAllExams();
-    exams.value = data;
+    exams.value = data.map((exam) => ({
+      ...exam,
+      examDateInfo: exam.examDateInfo
+        ? typeof exam.examDateInfo === "string"
+          ? JSON.parse(exam.examDateInfo)
+          : exam.examDateInfo
+        : {
+            year: new Date().getFullYear(),
+            month: new Date().getMonth() + 1,
+            day: new Date().getDate(),
+            period: 1,
+          },
+    }));
   } catch (error) {
     console.error("获取考试数据失败:", error);
   }
@@ -280,16 +280,6 @@ const fetchClassrooms = async () => {
   }
 };
 
-// 加载所有教师
-const fetchTeachers = async () => {
-  try {
-    const data = await teacherApi.getAllTeachers();
-    teachers.value = data;
-  } catch (error) {
-    console.error("获取教师数据失败:", error);
-  }
-};
-
 // 打开添加模态框
 const openAddModal = () => {
   isEditing.value = false;
@@ -297,11 +287,13 @@ const openAddModal = () => {
     examId: "",
     classId: "",
     classroomId: "",
-    examType: "",
-    examDate: "",
-    startTime: "",
-    endTime: "",
-    invigilatorId: "",
+    examName: "",
+    examDateInfo: {
+      year: new Date().getFullYear(),
+      month: new Date().getMonth() + 1,
+      day: new Date().getDate(),
+      period: 1,
+    },
   };
   showModal.value = true;
 };
@@ -309,14 +301,18 @@ const openAddModal = () => {
 // 打开编辑模态框
 const editExam = (exam: Exam) => {
   isEditing.value = true;
-  formData.value = { ...exam };
+  // 确保examDateInfo是对象形式
+  const examData = { ...exam };
+  if (examData.examDateInfo && typeof examData.examDateInfo === "string") {
+    examData.examDateInfo = JSON.parse(examData.examDateInfo);
+  }
+  formData.value = examData;
   showModal.value = true;
 };
 
 // 关闭模态框
 const closeModal = () => {
   showModal.value = false;
-  showAddModal.value = false;
 };
 
 // 保存考试
@@ -329,8 +325,14 @@ const saveExam = async () => {
     }
     await fetchExams();
     closeModal();
-  } catch (error) {
+  } catch (error: any) {
     console.error(isEditing.value ? "更新考试失败:" : "添加考试失败:", error);
+    // 显示友好的错误提示，包含时间冲突的可能性
+    alert(
+      `${
+        isEditing.value ? "更新" : "添加"
+      }考试失败！可能的原因：\n\n1. 该时间和教室已有其他考试或课表`
+    );
   }
 };
 
@@ -346,12 +348,6 @@ const deleteExam = async (examId: string) => {
   }
 };
 
-// 监听添加按钮状态
-const unwatchAddModal = computed(() => showAddModal.value).value;
-if (unwatchAddModal) {
-  openAddModal();
-}
-
 // 组件挂载时加载数据
 onMounted(async () => {
   try {
@@ -360,7 +356,6 @@ onMounted(async () => {
       fetchExams(),
       fetchTeachingClasses(),
       fetchClassrooms(),
-      fetchTeachers(),
     ]);
   } catch (error) {
     console.error("加载考试数据失败:", error);
@@ -371,23 +366,23 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.exam-management {
+.exam-management-container {
   padding: 20px;
 }
 
-.page-header {
+.management-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.page-header h2 {
+.management-header h2 {
   margin: 0;
   color: #333;
 }
 
-.add-btn {
+.btn-primary {
   background-color: #409eff;
   color: white;
   border: none;
@@ -397,7 +392,7 @@ onMounted(async () => {
   font-size: 14px;
 }
 
-.add-btn:hover {
+.btn-primary:hover {
   background-color: #66b1ff;
 }
 

@@ -4,10 +4,8 @@ import { request } from "./http";
 export interface Classroom {
   classroomId: string;
   building: string;
-  roomNumber: string;
   capacity: number;
-  type: string;
-  facilities: string;
+  nature: string;
 }
 
 // 教室API服务
@@ -16,7 +14,7 @@ export const classroomApi = {
    * 获取所有教室
    */
   getAllClassrooms: () => {
-    return request.get<Classroom[]>('/classrooms');
+    return request.get<Classroom[]>("/classrooms");
   },
 
   /**
@@ -40,7 +38,7 @@ export const classroomApi = {
    * @param classroom 教室数据
    */
   addClassroom: (classroom: Classroom) => {
-    return request.post<Classroom>('/classrooms', classroom);
+    return request.post<Classroom>("/classrooms", classroom);
   },
 
   /**

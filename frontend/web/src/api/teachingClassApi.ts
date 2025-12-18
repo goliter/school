@@ -6,8 +6,10 @@ export interface TeachingClass {
   courseId: string;
   teacherId: string;
   className: string;
-  capacity: number;
-  currentStudents: number;
+  semester: string;
+  courseName?: string;
+  scheduleInfo?: string;
+  studentCount?: number;
 }
 
 // 教学班级API服务

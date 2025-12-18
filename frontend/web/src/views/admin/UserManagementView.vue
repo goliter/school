@@ -90,7 +90,11 @@
           <form @submit.prevent="saveUser">
             <div class="form-group">
               <label>角色</label>
-              <select v-model="formData.role" class="form-control">
+              <select
+                v-model="formData.role"
+                class="form-control"
+                :disabled="isEditMode"
+              >
                 <option value="student">学生</option>
                 <option value="teacher">教师</option>
                 <option value="admin">管理员</option>
@@ -108,7 +112,16 @@
               />
             </div>
 
-            <div v-if="!isEditMode" class="form-group">
+            <div class="form-group" v-if="isEditMode">
+              <label>密码（留空不修改）</label>
+              <input
+                v-model="formData.password"
+                type="password"
+                class="form-control"
+                placeholder="不修改请留空"
+              />
+            </div>
+            <div class="form-group" v-else>
               <label>密码</label>
               <input
                 v-model="formData.password"
@@ -118,7 +131,7 @@
               />
             </div>
 
-            <div class="form-group">
+            <div class="form-group" v-if="formData.role !== 'admin'">
               <label>姓名</label>
               <input
                 v-model="formData.name"
@@ -178,12 +191,20 @@
               </div>
               <div class="form-group">
                 <label>专业代码</label>
-                <input
+                <select
                   v-model="formData.majorCode"
-                  type="text"
                   class="form-control"
                   required
-                />
+                >
+                  <option value="">请选择专业</option>
+                  <option
+                    v-for="major in majors"
+                    :key="major.majorCode"
+                    :value="major.majorCode"
+                  >
+                    {{ major.majorCode }} - {{ major.majorName }}
+                  </option>
+                </select>
               </div>
             </div>
 
@@ -237,12 +258,20 @@
               </div>
               <div class="form-group">
                 <label>专业代码</label>
-                <input
+                <select
                   v-model="formData.majorCode"
-                  type="text"
                   class="form-control"
                   required
-                />
+                >
+                  <option value="">请选择专业</option>
+                  <option
+                    v-for="major in majors"
+                    :key="major.majorCode"
+                    :value="major.majorCode"
+                  >
+                    {{ major.majorCode }} - {{ major.majorName }}
+                  </option>
+                </select>
               </div>
             </div>
 
@@ -279,6 +308,7 @@ import {
   type Teacher,
   type TeacherDto,
 } from "../../api/teacherApi";
+import { majorApi, type Major } from "../../api/majorApi";
 
 // 路由实例
 const router = useRouter();
@@ -287,6 +317,7 @@ const router = useRouter();
 const users = ref<any[]>([]);
 const students = ref<Student[]>([]);
 const teachers = ref<Teacher[]>([]);
+const majors = ref<Major[]>([]);
 // 加载状态
 const loading = ref(true);
 
@@ -343,10 +374,13 @@ const mergeUserData = async () => {
     const allStudents = await studentApi.getAllStudents();
     // 获取所有教师
     const allTeachers = await teacherApi.getAllTeachers();
+    // 获取所有专业
+    const allMajors = await majorApi.getAllMajors();
 
-    // 存储学生和教师数据
+    // 存储学生、教师和专业数据
     students.value = allStudents;
     teachers.value = allTeachers;
+    majors.value = allMajors;
 
     // 创建学生和教师的映射
     const studentMap = new Map(allStudents.map((s) => [s.userId, s]));
@@ -417,7 +451,7 @@ const openEditUserModal = (user: any) => {
   isEditMode.value = true;
   formData.value = {
     userId: user.userId,
-    password: "",
+    password: "", // 编辑时不自动填充密码，用户需要修改时手动输入
     role: user.role,
     status: user.status.toString(),
     name: user.name,
@@ -487,15 +521,21 @@ const saveUser = async () => {
 // 添加用户
 const addUser = async () => {
   // 创建用户账户
-  await userAccountApi.addUserAccount({
+  const userAccountData = {
     userId: formData.value.userId,
     password: formData.value.password,
     role: formData.value.role,
     status: parseInt(formData.value.status),
-    name: formData.value.name,
     email: "",
     phone: formData.value.phone,
-  });
+  };
+
+  // 只有当角色不是管理员时才添加name字段
+  if (formData.value.role !== "admin") {
+    (userAccountData as any).name = formData.value.name;
+  }
+
+  await userAccountApi.addUserAccount(userAccountData);
 
   // 根据角色创建对应的实体
   if (formData.value.role === "student") {
@@ -532,19 +572,32 @@ const addUser = async () => {
 // 更新用户
 const updateUser = async () => {
   // 更新用户账户
-  await userAccountApi.updateUserAccount(formData.value.userId, {
+  const userAccountData: any = {
     userId: formData.value.userId,
-    password: formData.value.password || "",
     role: formData.value.role,
     status: parseInt(formData.value.status),
-    name: formData.value.name,
     email: "",
     phone: formData.value.phone,
-  });
+  };
+
+  // 只有当密码不为空字符串时才包含密码字段
+  if (formData.value.password && formData.value.password.trim() !== "") {
+    userAccountData.password = formData.value.password;
+  }
+
+  // 只有当角色不是管理员时才添加name字段
+  if (formData.value.role !== "admin") {
+    userAccountData.name = formData.value.name;
+  }
+
+  await userAccountApi.updateUserAccount(
+    formData.value.userId,
+    userAccountData
+  );
 
   // 根据角色更新对应的实体
   if (formData.value.role === "student") {
-    const studentDto: StudentDto = {
+    const studentDto: any = {
       studentId: formData.value.studentId,
       name: formData.value.name,
       gender: formData.value.gender,
@@ -552,13 +605,21 @@ const updateUser = async () => {
       phone: formData.value.phone,
       majorCode: formData.value.majorCode,
       userId: formData.value.userId,
-      password: formData.value.password || "",
       role: "student",
       status: parseInt(formData.value.status),
     };
-    await studentApi.updateStudent(formData.value.studentId, studentDto);
+
+    // 只有当密码不为空字符串时才包含密码字段
+    if (formData.value.password && formData.value.password.trim() !== "") {
+      studentDto.password = formData.value.password;
+    }
+
+    await studentApi.updateStudent(
+      formData.value.studentId,
+      studentDto as StudentDto
+    );
   } else if (formData.value.role === "teacher") {
-    const teacherDto: TeacherDto = {
+    const teacherDto: any = {
       teacherId: formData.value.teacherId,
       name: formData.value.name,
       title: formData.value.title,
@@ -567,10 +628,18 @@ const updateUser = async () => {
       duty: formData.value.duty,
       majorCode: formData.value.majorCode,
       userId: formData.value.userId,
-      password: formData.value.password || "",
       status: parseInt(formData.value.status),
     };
-    await teacherApi.updateTeacher(formData.value.teacherId, teacherDto);
+
+    // 只有当密码不为空字符串时才包含密码字段
+    if (formData.value.password && formData.value.password.trim() !== "") {
+      teacherDto.password = formData.value.password;
+    }
+
+    await teacherApi.updateTeacher(
+      formData.value.teacherId,
+      teacherDto as TeacherDto
+    );
   }
 };
 

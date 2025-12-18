@@ -124,8 +124,24 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public boolean deleteTeacher(String teacherId) {
         if (teacherRepository.existsById(teacherId)) {
-            teacherRepository.deleteById(teacherId);
-            return true;
+            try {
+                // 获取Teacher对象
+                Teacher teacher = teacherRepository.findById(teacherId).orElse(null);
+                if (teacher != null) {
+                    // 获取对应的UserAccount
+                    UserAccount userAccount = teacher.getUserAccount();
+                    if (userAccount != null) {
+                        // 删除UserAccount
+                        userAccountRepository.delete(userAccount);
+                    }
+                    // 删除Teacher
+                    teacherRepository.deleteById(teacherId);
+                }
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
         return false;
     }

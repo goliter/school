@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.config.AdminRequired;
 import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.UserAccount;
 import org.example.jdbc.service.UserAccountService;
@@ -17,6 +18,7 @@ public class UserAccountController {
     @Autowired
     private UserAccountService userAccountService;
 
+    @AdminRequired
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserAccount>>> getAllUserAccounts() {
         List<UserAccount> userAccounts = userAccountService.getAllUserAccounts();
@@ -33,6 +35,7 @@ public class UserAccountController {
         return ResponseEntity.ok(ApiResponse.success(userAccount));
     }
 
+    @AdminRequired
     @PostMapping
     public ResponseEntity<ApiResponse<UserAccount>> addUserAccount(@RequestBody UserAccount userAccount) {
         boolean success = userAccountService.addUserAccount(userAccount);
@@ -44,6 +47,7 @@ public class UserAccountController {
                 .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "用户账户添加失败"));
     }
 
+    @AdminRequired
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserAccount>> updateUserAccount(@PathVariable("id") String userId, @RequestBody UserAccount userAccount) {
         userAccount.setUserId(userId);
@@ -55,6 +59,7 @@ public class UserAccountController {
                 .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "用户账户更新失败"));
     }
 
+    @AdminRequired
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUserAccount(@PathVariable("id") String userId) {
         boolean success = userAccountService.deleteUserAccount(userId);

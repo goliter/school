@@ -1,8 +1,8 @@
 <template>
-  <div class="schedule-management">
-    <div class="page-header">
+  <div class="schedule-management-container">
+    <div class="management-header">
       <h2>课表管理</h2>
-      <button @click="showAddModal = true" class="add-btn">
+      <button @click="openAddModal" class="btn btn-primary">
         <i class="icon-plus"></i> 添加课表
       </button>
     </div>
@@ -25,35 +25,31 @@
           <tr>
             <th>班级</th>
             <th>教室</th>
-            <th>周次</th>
-            <th>星期</th>
-            <th>节次</th>
-            <th>开始日期</th>
-            <th>结束日期</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="schedule in filteredSchedules"
-            :key="`${schedule.classId}-${schedule.week}-${schedule.weekday}-${schedule.periods}`"
+          <template
+            v-for="(schedule, scheduleIndex) in filteredSchedules"
+            :key="`${schedule.classId}-${schedule.classroomId}-${scheduleIndex}`"
           >
-            <td>{{ getClassName(schedule.classId) }}</td>
-            <td>{{ getClassroomName(schedule.classroomId) }}</td>
-            <td>{{ schedule.week }}</td>
-            <td>{{ getWeekdayName(schedule.weekday) }}</td>
-            <td>{{ schedule.periods }}</td>
-            <td>{{ formatDate(schedule.startDate) }}</td>
-            <td>{{ formatDate(schedule.endDate) }}</td>
-            <td class="action-buttons">
-              <button @click="editSchedule(schedule)" class="edit-btn">
-                <i class="icon-edit"></i> 编辑
-              </button>
-              <button @click="deleteSchedule(schedule)" class="delete-btn">
-                <i class="icon-delete"></i> 删除
-              </button>
-            </td>
-          </tr>
+            <tr class="schedule-header">
+              <td>
+                {{ getClassName(schedule.classId) }}
+              </td>
+              <td>
+                {{ getClassroomName(schedule.classroomId) }}
+              </td>
+              <td class="action-buttons">
+                <button @click="editSchedule(schedule)" class="edit-btn">
+                  <i class="icon-edit"></i> 编辑
+                </button>
+                <button @click="deleteSchedule(schedule)" class="delete-btn">
+                  <i class="icon-delete"></i> 删除
+                </button>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
       <div v-if="filteredSchedules.length === 0" class="empty-state">
@@ -93,67 +89,65 @@
                   :key="classroom.classroomId"
                   :value="classroom.classroomId"
                 >
-                  {{ classroom.building }} {{ classroom.roomNumber }}
+                  {{ classroom.building }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="week">周次</label>
-              <input
-                id="week"
-                v-model.number="formData.week"
-                type="number"
-                min="1"
-                max="20"
-                placeholder="请输入周次"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="weekday">星期</label>
-              <select id="weekday" v-model.number="formData.weekday" required>
-                <option value="">请选择星期</option>
-                <option :value="1">周一</option>
-                <option :value="2">周二</option>
-                <option :value="3">周三</option>
-                <option :value="4">周四</option>
-                <option :value="5">周五</option>
-                <option :value="6">周六</option>
-                <option :value="7">周日</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="periods">节次</label>
-              <input
-                id="periods"
-                v-model="formData.periods"
-                type="text"
-                placeholder="请输入节次（如：1-2节）"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="startDate">开始日期</label>
-              <input
-                id="startDate"
-                v-model="formData.startDate"
-                type="date"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="endDate">结束日期</label>
-              <input
-                id="endDate"
-                v-model="formData.endDate"
-                type="date"
-                required
-              />
+              <label>上课时间</label>
+              <div
+                v-for="(time, index) in formData.scheduleInfo.times"
+                :key="index"
+                class="time-entry"
+              >
+                <div class="time-fields">
+                  <input
+                    v-model.number="formData.scheduleInfo.times[index].year"
+                    type="number"
+                    placeholder="年"
+                    required
+                    class="time-input"
+                    min="2020"
+                    max="2030"
+                  />
+                  <input
+                    v-model.number="formData.scheduleInfo.times[index].month"
+                    type="number"
+                    placeholder="月"
+                    required
+                    class="time-input"
+                    min="1"
+                    max="12"
+                  />
+                  <input
+                    v-model.number="formData.scheduleInfo.times[index].day"
+                    type="number"
+                    placeholder="日"
+                    required
+                    class="time-input"
+                    min="1"
+                    max="31"
+                  />
+                  <input
+                    v-model="formData.scheduleInfo.times[index].period"
+                    type="text"
+                    placeholder="节次（如：1-2节）"
+                    required
+                    class="time-input"
+                  />
+                </div>
+                <button
+                  @click="removeTime(index)"
+                  class="remove-time-btn"
+                  :disabled="formData.scheduleInfo.times.length <= 1"
+                >
+                  <i class="icon-delete"></i> 移除
+                </button>
+              </div>
+              <button @click="addTime" class="add-time-btn">
+                <i class="icon-plus"></i> 添加时间
+              </button>
             </div>
 
             <div class="form-actions">
@@ -173,7 +167,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { scheduleApi, Schedule } from "../../api/scheduleApi";
+import { scheduleApi, Schedule, ScheduleInfo } from "../../api/scheduleApi";
 import { teachingClassApi } from "../../api/teachingClassApi";
 import { classroomApi } from "../../api/classroomApi";
 
@@ -183,17 +177,21 @@ const teachingClasses = ref<any[]>([]);
 const classrooms = ref<any[]>([]);
 const searchKeyword = ref("");
 const showModal = ref(false);
-const showAddModal = ref(false);
 const isEditing = ref(false);
 const loading = ref(true);
 const formData = ref<Schedule>({
   classId: "",
   classroomId: "",
-  week: 0,
-  weekday: 0,
-  periods: "",
-  startDate: "",
-  endDate: "",
+  scheduleInfo: {
+    times: [
+      {
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1,
+        day: new Date().getDate(),
+        period: "",
+      },
+    ],
+  },
 });
 
 // 计算属性：筛选后的课表列表
@@ -216,28 +214,24 @@ const getClassName = (classId: string): string => {
 // 获取教室名称
 const getClassroomName = (classroomId: string): string => {
   const classroom = classrooms.value.find((c) => c.classroomId === classroomId);
-  return classroom
-    ? `${classroom.building} ${classroom.roomNumber}`
-    : "未知教室";
-};
-
-// 获取星期名称
-const getWeekdayName = (weekday: number): string => {
-  const weekdays = ["", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
-  return weekdays[weekday] || "未知星期";
-};
-
-// 格式化日期
-const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString();
+  return classroom ? classroom.building : "未知教室";
 };
 
 // 加载所有课表
 const fetchSchedules = async () => {
   try {
     const data = await scheduleApi.getAllSchedules();
-    schedules.value = data;
+    schedules.value = data.map((schedule) => {
+      const updatedSchedule = { ...schedule };
+      // 确保scheduleInfo是对象形式
+      if (
+        updatedSchedule.scheduleInfo &&
+        typeof updatedSchedule.scheduleInfo === "string"
+      ) {
+        updatedSchedule.scheduleInfo = JSON.parse(updatedSchedule.scheduleInfo);
+      }
+      return updatedSchedule;
+    });
   } catch (error) {
     console.error("获取课表数据失败:", error);
   }
@@ -263,17 +257,39 @@ const fetchClassrooms = async () => {
   }
 };
 
+// 添加时间
+const addTime = () => {
+  formData.value.scheduleInfo.times.push({
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    day: new Date().getDate(),
+    period: "",
+  });
+};
+
+// 移除时间
+const removeTime = (index: number) => {
+  if (formData.value.scheduleInfo.times.length > 1) {
+    formData.value.scheduleInfo.times.splice(index, 1);
+  }
+};
+
 // 打开添加模态框
 const openAddModal = () => {
   isEditing.value = false;
   formData.value = {
     classId: "",
     classroomId: "",
-    week: 0,
-    weekday: 0,
-    periods: "",
-    startDate: "",
-    endDate: "",
+    scheduleInfo: {
+      times: [
+        {
+          year: new Date().getFullYear(),
+          month: new Date().getMonth() + 1,
+          day: new Date().getDate(),
+          period: "",
+        },
+      ],
+    },
   };
   showModal.value = true;
 };
@@ -281,14 +297,21 @@ const openAddModal = () => {
 // 打开编辑模态框
 const editSchedule = (schedule: Schedule) => {
   isEditing.value = true;
-  formData.value = { ...schedule };
+  const scheduleData = { ...schedule };
+  // 确保scheduleInfo是对象形式
+  if (
+    scheduleData.scheduleInfo &&
+    typeof scheduleData.scheduleInfo === "string"
+  ) {
+    scheduleData.scheduleInfo = JSON.parse(scheduleData.scheduleInfo);
+  }
+  formData.value = scheduleData;
   showModal.value = true;
 };
 
 // 关闭模态框
 const closeModal = () => {
   showModal.value = false;
-  showAddModal.value = false;
 };
 
 // 保存课表
@@ -301,8 +324,14 @@ const saveSchedule = async () => {
     }
     await fetchSchedules();
     closeModal();
-  } catch (error) {
+  } catch (error: any) {
     console.error(isEditing.value ? "更新课表失败:" : "添加课表失败:", error);
+    // 显示友好的错误提示，包含时间冲突的可能性
+    alert(
+      `${
+        isEditing.value ? "更新" : "添加"
+      }课表失败！可能的原因：\n\n1. 该时间和教室已有其他考试或课表\n`
+    );
   }
 };
 
@@ -310,24 +339,15 @@ const saveSchedule = async () => {
 const deleteSchedule = async (schedule: Schedule) => {
   if (confirm("确定要删除这个课表吗？")) {
     try {
-      await scheduleApi.deleteSchedule({
-        classId: schedule.classId,
-        week: schedule.week,
-        weekday: schedule.weekday,
-        periods: schedule.periods,
-      });
-      await fetchSchedules();
+      if (schedule.id) {
+        await scheduleApi.deleteSchedule(schedule.id);
+        await fetchSchedules();
+      }
     } catch (error) {
       console.error("删除课表失败:", error);
     }
   }
 };
-
-// 监听添加按钮状态
-const unwatchAddModal = computed(() => showAddModal.value).value;
-if (unwatchAddModal) {
-  openAddModal();
-}
 
 // 组件挂载时加载数据
 onMounted(async () => {
@@ -345,23 +365,23 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.schedule-management {
+.schedule-management-container {
   padding: 20px;
 }
 
-.page-header {
+.management-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.page-header h2 {
+.management-header h2 {
   margin: 0;
   color: #333;
 }
 
-.add-btn {
+.btn-primary {
   background-color: #409eff;
   color: white;
   border: none;
@@ -371,7 +391,7 @@ onMounted(async () => {
   font-size: 14px;
 }
 
-.add-btn:hover {
+.btn-primary:hover {
   background-color: #66b1ff;
 }
 
@@ -532,6 +552,56 @@ onMounted(async () => {
 .form-group select:focus {
   outline: none;
   border-color: #409eff;
+}
+
+.time-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+}
+
+.time-fields {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.time-select,
+.time-input {
+  flex: 1;
+}
+
+.add-time-btn,
+.remove-time-btn {
+  background-color: #409eff;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.remove-time-btn {
+  background-color: #f56c6c;
+}
+
+.remove-time-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.schedule-header {
+  background-color: #f5f7fa;
+  font-weight: bold;
+}
+
+.schedule-header td {
+  vertical-align: middle;
 }
 
 .form-actions {

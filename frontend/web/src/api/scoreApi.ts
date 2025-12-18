@@ -3,10 +3,8 @@ import { request } from "./http";
 // 成绩数据类型定义
 export interface Score {
   studentId: string;
-  courseId: string;
+  examId: string;
   score: number;
-  grade: string;
-  remark: string;
 }
 
 // 成绩API服务
@@ -15,7 +13,7 @@ export const scoreApi = {
    * 获取所有成绩
    */
   getAllScores: () => {
-    return request.get<Score[]>('/scores');
+    return request.get<Score[]>("/scores");
   },
 
   /**
@@ -27,20 +25,20 @@ export const scoreApi = {
   },
 
   /**
-   * 根据课程ID获取成绩
-   * @param courseId 课程ID
+   * 根据考试ID获取成绩
+   * @param examId 考试ID
    */
-  getScoresByCourseId: (courseId: string) => {
-    return request.get<Score[]>(`/scores/course/${courseId}`);
+  getScoresByExamId: (examId: string) => {
+    return request.get<Score[]>(`/scores/exam/${examId}`);
   },
 
   /**
-   * 获取特定学生的特定课程成绩
+   * 获取特定学生的特定考试成绩
    * @param studentId 学生ID
-   * @param courseId 课程ID
+   * @param examId 考试ID
    */
-  getScore: (studentId: string, courseId: string) => {
-    return request.get<Score>(`/scores/${studentId}/${courseId}`);
+  getScore: (studentId: string, examId: string) => {
+    return request.get<Score>(`/scores/${studentId}/${examId}`);
   },
 
   /**
@@ -48,7 +46,7 @@ export const scoreApi = {
    * @param score 成绩数据
    */
   addScore: (score: Score) => {
-    return request.post<Score>('/scores', score);
+    return request.post<Score>("/scores", score);
   },
 
   /**
@@ -56,15 +54,15 @@ export const scoreApi = {
    * @param score 成绩数据
    */
   updateScore: (score: Score) => {
-    return request.put<Score>('/scores', score);
+    return request.put<Score>("/scores", score);
   },
 
   /**
    * 删除成绩
    * @param studentId 学生ID
-   * @param courseId 课程ID
+   * @param examId 考试ID
    */
-  deleteScore: (studentId: string, courseId: string) => {
-    return request.delete(`/scores/${studentId}/${courseId}`);
+  deleteScore: (studentId: string, examId: string) => {
+    return request.delete(`/scores/${studentId}/${examId}`);
   },
 };

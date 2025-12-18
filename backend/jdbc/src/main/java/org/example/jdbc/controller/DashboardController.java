@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.config.AdminRequired;
 import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ public class DashboardController {
     @Autowired
     private ExamService examService;
 
+    @AdminRequired
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();

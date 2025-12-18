@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.dto.ScheduleDTO;
 import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.Schedule;
 import org.example.jdbc.service.ScheduleService;
@@ -56,14 +57,25 @@ public class ScheduleController {
                 .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "课程表更新失败"));
     }
 
-    @DeleteMapping
-    public ResponseEntity<ApiResponse<Void>> deleteSchedule(@RequestParam String classId, @RequestParam int week, 
-                                              @RequestParam int weekday, @RequestParam int periods) {
-        boolean success = scheduleService.deleteSchedule(classId, week, weekday, periods);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteSchedule(@PathVariable Long id) {
+        boolean success = scheduleService.deleteSchedule(id);
         if (success) {
             return ResponseEntity.ok(ApiResponse.success("课程表删除成功", null));
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "课程表删除失败"));
+    }
+
+    @GetMapping("/teacher/{teacherId}")
+    public ResponseEntity<ApiResponse<List<ScheduleDTO>>> getSchedulesByTeacher(@PathVariable("teacherId") String teacherId) {
+        List<ScheduleDTO> schedules = scheduleService.getSchedulesByTeacher(teacherId);
+        return ResponseEntity.ok(ApiResponse.success(schedules));
+    }
+
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<ApiResponse<List<ScheduleDTO>>> getSchedulesByStudent(@PathVariable("studentId") String studentId) {
+        List<ScheduleDTO> schedules = scheduleService.getSchedulesByStudent(studentId);
+        return ResponseEntity.ok(ApiResponse.success(schedules));
     }
 }

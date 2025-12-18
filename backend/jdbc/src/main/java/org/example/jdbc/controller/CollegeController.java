@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.config.AdminRequired;
 import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.College;
 import org.example.jdbc.service.CollegeService;
@@ -33,6 +34,7 @@ public class CollegeController {
         return ResponseEntity.ok(ApiResponse.success(college));
     }
 
+    @AdminRequired
     @PostMapping
     public ResponseEntity<ApiResponse<College>> addCollege(@RequestBody College college) {
         boolean success = collegeService.addCollege(college);
@@ -44,6 +46,7 @@ public class CollegeController {
                 .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "学院添加失败"));
     }
 
+    @AdminRequired
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<College>> updateCollege(@PathVariable("id") String collegeId, @RequestBody College college) {
         college.setCollegeId(collegeId);
@@ -55,6 +58,7 @@ public class CollegeController {
                 .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "学院更新失败"));
     }
 
+    @AdminRequired
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCollege(@PathVariable("id") String collegeId) {
         boolean success = collegeService.deleteCollege(collegeId);

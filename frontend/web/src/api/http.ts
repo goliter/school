@@ -26,6 +26,12 @@ http.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // 添加用户角色信息
+    const storedUser = localStorage.getItem("user");
+    if (storedUser && config.headers) {
+      const user = JSON.parse(storedUser);
+      config.headers["X-User-Role"] = user.role || "";
+    }
     return config;
   },
   (error) => {

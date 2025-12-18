@@ -48,7 +48,14 @@ public class UserAccountServiceImpl implements UserAccountService {
     public boolean updateUserAccount(UserAccount userAccount) {
         try {
             if (userAccountRepository.existsById(userAccount.getUserId())) {
-                userAccountRepository.save(userAccount);
+                // 获取当前用户账户信息
+                UserAccount currentUser = userAccountRepository.findById(userAccount.getUserId()).orElse(null);
+                if (currentUser != null) {
+                    // 保留原有的角色信息
+                    userAccount.setRole(currentUser.getRole());
+                    // 保存更新后的用户账户
+                    userAccountRepository.save(userAccount);
+                }
                 return true;
             }
             return false;

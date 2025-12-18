@@ -45,6 +45,12 @@ public class ExamController {
         return ResponseEntity.ok(ApiResponse.success(exams));
     }
 
+    @GetMapping("/teacher/{teacherId}")
+    public ResponseEntity<ApiResponse<List<Exam>>> getExamsByTeacher(@PathVariable("teacherId") String teacherId) {
+        List<Exam> exams = examService.getExamsByTeacher(teacherId);
+        return ResponseEntity.ok(ApiResponse.success(exams));
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<Exam>> addExam(@RequestBody Exam exam) {
         boolean success = examService.addExam(exam);

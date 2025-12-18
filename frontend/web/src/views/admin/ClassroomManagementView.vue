@@ -1,8 +1,8 @@
 <template>
-  <div class="classroom-management">
-    <div class="page-header">
+  <div class="classroom-management-container">
+    <div class="management-header">
       <h2>教室管理</h2>
-      <button @click="showAddModal = true" class="add-btn">
+      <button @click="openAddModal" class="btn btn-primary">
         <i class="icon-plus"></i> 添加教室
       </button>
     </div>
@@ -26,10 +26,8 @@
             <tr>
               <th>教室ID</th>
               <th>教学楼</th>
-              <th>房间号</th>
               <th>容量</th>
               <th>类型</th>
-              <th>设施</th>
               <th>操作</th>
             </tr>
           </thead>
@@ -40,10 +38,8 @@
             >
               <td>{{ classroom.classroomId }}</td>
               <td>{{ classroom.building }}</td>
-              <td>{{ classroom.roomNumber }}</td>
               <td>{{ classroom.capacity }}</td>
-              <td>{{ classroom.type }}</td>
-              <td>{{ classroom.facilities || "-" }}</td>
+              <td>{{ classroom.nature }}</td>
               <td class="action-buttons">
                 <button @click="editClassroom(classroom)" class="edit-btn">
                   <i class="icon-edit"></i> 编辑
@@ -97,17 +93,6 @@
             </div>
 
             <div class="form-group">
-              <label for="roomNumber">房间号</label>
-              <input
-                id="roomNumber"
-                v-model="formData.roomNumber"
-                type="text"
-                placeholder="请输入房间号"
-                required
-              />
-            </div>
-
-            <div class="form-group">
               <label for="capacity">容量</label>
               <input
                 id="capacity"
@@ -122,22 +107,12 @@
             <div class="form-group">
               <label for="type">类型</label>
               <input
-                id="type"
-                v-model="formData.type"
+                id="nature"
+                v-model="formData.nature"
                 type="text"
                 placeholder="请输入教室类型（如：普通教室、实验室、多媒体教室等）"
                 required
               />
-            </div>
-
-            <div class="form-group">
-              <label for="facilities">设施</label>
-              <textarea
-                id="facilities"
-                v-model="formData.facilities"
-                rows="3"
-                placeholder="请输入教室设施（如：投影仪、白板、电脑等）"
-              ></textarea>
             </div>
 
             <div class="form-actions">
@@ -164,25 +139,20 @@ const loading = ref(true);
 const classrooms = ref<Classroom[]>([]);
 const searchKeyword = ref("");
 const showModal = ref(false);
-const showAddModal = ref(false);
 const isEditing = ref(false);
 const formData = ref<Classroom>({
   classroomId: "",
   building: "",
-  roomNumber: "",
   capacity: 0,
-  type: "",
-  facilities: "",
+  nature: "",
 });
 
 // 计算属性：筛选后的教室列表
 const filteredClassrooms = computed(() => {
   if (!searchKeyword.value) return classrooms.value;
   const keyword = searchKeyword.value.toLowerCase();
-  return classrooms.value.filter(
-    (classroom) =>
-      classroom.building.toLowerCase().includes(keyword) ||
-      classroom.roomNumber.toLowerCase().includes(keyword)
+  return classrooms.value.filter((classroom) =>
+    classroom.building.toLowerCase().includes(keyword)
   );
 });
 
@@ -202,10 +172,8 @@ const openAddModal = () => {
   formData.value = {
     classroomId: "",
     building: "",
-    roomNumber: "",
     capacity: 0,
-    type: "",
-    facilities: "",
+    nature: "",
   };
   showModal.value = true;
 };
@@ -220,7 +188,6 @@ const editClassroom = (classroom: Classroom) => {
 // 关闭模态框
 const closeModal = () => {
   showModal.value = false;
-  showAddModal.value = false;
 };
 
 // 保存教室
@@ -253,12 +220,6 @@ const deleteClassroom = async (classroomId: string) => {
   }
 };
 
-// 监听添加按钮状态
-const unwatchAddModal = computed(() => showAddModal.value).value;
-if (unwatchAddModal) {
-  openAddModal();
-}
-
 // 组件挂载时加载数据
 onMounted(async () => {
   try {
@@ -273,23 +234,23 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.classroom-management {
+.classroom-management-container {
   padding: 20px;
 }
 
-.page-header {
+.management-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.page-header h2 {
+.management-header h2 {
   margin: 0;
   color: #333;
 }
 
-.add-btn {
+.btn-primary {
   background-color: #409eff;
   color: white;
   border: none;
@@ -299,7 +260,7 @@ onMounted(async () => {
   font-size: 14px;
 }
 
-.add-btn:hover {
+.btn-primary:hover {
   background-color: #66b1ff;
 }
 

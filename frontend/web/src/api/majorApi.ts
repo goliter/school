@@ -5,7 +5,8 @@ export interface Major {
   majorCode: string;
   majorName: string;
   collegeId: string;
-  description: string;
+  office: string;
+  phone: string;
 }
 
 // 专业API服务
@@ -14,7 +15,7 @@ export const majorApi = {
    * 获取所有专业
    */
   getAllMajors: () => {
-    return request.get<Major[]>('/majors');
+    return request.get<Major[]>("/majors");
   },
 
   /**
@@ -30,7 +31,7 @@ export const majorApi = {
    * @param major 专业数据
    */
   addMajor: (major: Major) => {
-    return request.post<Major>('/majors', major);
+    return request.post<Major>("/majors", major);
   },
 
   /**

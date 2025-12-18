@@ -31,12 +31,79 @@ const router = createRouter({
       name: "student",
       component: StudentView,
       meta: { requiresAuth: true }, // 需要登录才能访问
+      children: [
+        {
+          path: "",
+          redirect: "/student/personal-info",
+        },
+        {
+          path: "personal-info",
+          name: "studentPersonalInfo",
+          component: () => import("../views/student/PersonalInfoView.vue"),
+        },
+        {
+          path: "courses",
+          name: "studentCourses",
+          component: () => import("../views/student/CoursesView.vue"),
+        },
+        {
+          path: "exams",
+          name: "studentExams",
+          component: () => import("../views/student/ExamsView.vue"),
+        },
+        {
+          path: "schedule",
+          name: "studentSchedule",
+          component: () => import("../views/student/ScheduleView.vue"),
+        },
+        {
+          path: "elective",
+          name: "studentElective",
+          component: () => import("../views/student/CourseSelectionView.vue"),
+        },
+        {
+          path: "scores",
+          name: "studentScores",
+          component: () => import("../views/student/StudentScoresView.vue"),
+        },
+      ],
     },
     {
       path: "/teacher",
       name: "teacher",
       component: TeacherView,
       meta: { requiresAuth: true }, // 需要登录才能访问
+      children: [
+        {
+          path: "",
+          redirect: "/teacher/personal-info",
+        },
+        {
+          path: "personal-info",
+          name: "teacherPersonalInfo",
+          component: () => import("../views/teacher/PersonalInfoView.vue"),
+        },
+        {
+          path: "courses",
+          name: "teacherCourses",
+          component: () => import("../views/teacher/CoursesView.vue"),
+        },
+        {
+          path: "exams",
+          name: "teacherExams",
+          component: () => import("../views/teacher/ExamsView.vue"),
+        },
+        {
+          path: "schedule",
+          name: "teacherSchedule",
+          component: () => import("../views/teacher/ScheduleView.vue"),
+        },
+        {
+          path: "scores",
+          name: "teacherScores",
+          component: () => import("../views/teacher/ScoresView.vue"),
+        },
+      ],
     },
     {
       path: "/admin",

@@ -1,8 +1,8 @@
 <template>
-  <div class="teaching-class-management">
-    <div class="page-header">
+  <div class="teaching-class-management-container">
+    <div class="management-header">
       <h2>教学班管理</h2>
-      <button @click="showAddModal = true" class="add-btn">
+      <button @click="openAddModal" class="btn btn-primary">
         <i class="icon-plus"></i> 添加教学班
       </button>
     </div>
@@ -26,10 +26,9 @@
             <tr>
               <th>班级ID</th>
               <th>班级名称</th>
+              <th>学期</th>
               <th>课程</th>
               <th>教师</th>
-              <th>容量</th>
-              <th>当前人数</th>
               <th>操作</th>
             </tr>
           </thead>
@@ -40,10 +39,9 @@
             >
               <td>{{ teachingClass.classId }}</td>
               <td>{{ teachingClass.className }}</td>
+              <td>{{ teachingClass.semester }}</td>
               <td>{{ getCourseName(teachingClass.courseId) }}</td>
               <td>{{ getTeacherName(teachingClass.teacherId) }}</td>
-              <td>{{ teachingClass.capacity }}</td>
-              <td>{{ teachingClass.currentStudents }}</td>
               <td class="action-buttons">
                 <button
                   @click="editTeachingClass(teachingClass)"
@@ -122,32 +120,18 @@
                   :key="teacher.teacherId"
                   :value="teacher.teacherId"
                 >
-                  {{ teacher.teacherName }}
+                  {{ teacher.name }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="capacity">容量</label>
+              <label for="semester">学期</label>
               <input
-                id="capacity"
-                v-model.number="formData.capacity"
-                type="number"
-                min="1"
-                placeholder="请输入班级容量"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="currentStudents">当前人数</label>
-              <input
-                id="currentStudents"
-                v-model.number="formData.currentStudents"
-                type="number"
-                min="0"
-                :max="formData.capacity"
-                placeholder="请输入当前人数"
+                id="semester"
+                v-model="formData.semester"
+                type="text"
+                placeholder="请输入学期（如：2023-2024学年第一学期）"
                 required
               />
             </div>
@@ -180,15 +164,13 @@ const courses = ref<any[]>([]);
 const teachers = ref<any[]>([]);
 const searchKeyword = ref("");
 const showModal = ref(false);
-const showAddModal = ref(false);
 const isEditing = ref(false);
 const formData = ref<TeachingClass>({
   classId: "",
   courseId: "",
   teacherId: "",
   className: "",
-  capacity: 0,
-  currentStudents: 0,
+  semester: "",
 });
 
 // 计算属性：筛选后的教学班列表
@@ -209,7 +191,7 @@ const getCourseName = (courseId: string): string => {
 // 获取教师名称
 const getTeacherName = (teacherId: string): string => {
   const teacher = teachers.value.find((t) => t.teacherId === teacherId);
-  return teacher ? teacher.teacherName : "未知教师";
+  return teacher ? teacher.name : "未知教师";
 };
 
 // 加载所有教学班
@@ -250,8 +232,7 @@ const openAddModal = () => {
     courseId: "",
     teacherId: "",
     className: "",
-    capacity: 0,
-    currentStudents: 0,
+    semester: "",
   };
   showModal.value = true;
 };
@@ -266,7 +247,6 @@ const editTeachingClass = (teachingClass: TeachingClass) => {
 // 关闭模态框
 const closeModal = () => {
   showModal.value = false;
-  showAddModal.value = false;
 };
 
 // 保存教学班
@@ -302,12 +282,6 @@ const deleteTeachingClass = async (classId: string) => {
   }
 };
 
-// 监听添加按钮状态
-const unwatchAddModal = computed(() => showAddModal.value).value;
-if (unwatchAddModal) {
-  openAddModal();
-}
-
 // 组件挂载时加载数据
 onMounted(async () => {
   try {
@@ -326,23 +300,23 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.teaching-class-management {
+.teaching-class-management-container {
   padding: 20px;
 }
 
-.page-header {
+.management-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.page-header h2 {
+.management-header h2 {
   margin: 0;
   color: #333;
 }
 
-.add-btn {
+.btn-primary {
   background-color: #409eff;
   color: white;
   border: none;
@@ -352,7 +326,7 @@ onMounted(async () => {
   font-size: 14px;
 }
 
-.add-btn:hover {
+.btn-primary:hover {
   background-color: #66b1ff;
 }
 

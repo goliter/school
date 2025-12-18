@@ -101,12 +101,10 @@ CREATE TABLE IF NOT EXISTS classroom (
    10. 课表
    =============================== */
 CREATE TABLE IF NOT EXISTS schedule (
+                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
                           class_id     VARCHAR(20),
                           classroom_id VARCHAR(20),
-                          week         INT,
-                          weekday      INT,
-                          periods       INT,
-                          PRIMARY KEY (class_id, week, weekday, periods),
+                          schedule_info JSON,
                           FOREIGN KEY (class_id) REFERENCES teaching_class(class_id),
                           FOREIGN KEY (classroom_id) REFERENCES classroom(classroom_id)
 ) ENGINE=InnoDB;
@@ -117,8 +115,7 @@ CREATE TABLE IF NOT EXISTS schedule (
 CREATE TABLE IF NOT EXISTS exam (
                       exam_id      VARCHAR(20) PRIMARY KEY,
                       exam_name    VARCHAR(50),
-                      exam_date    VARCHAR(20),
-                      periods       INT,
+                      exam_date_info JSON,
                       classroom_id VARCHAR(20),
                       class_id     VARCHAR(20),
                       FOREIGN KEY (classroom_id) REFERENCES classroom(classroom_id),

@@ -29,7 +29,6 @@
             <th>专业代码</th>
             <th>学分</th>
             <th>课程类型</th>
-            <th>学时</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -38,9 +37,8 @@
             <td>{{ course.courseId }}</td>
             <td>{{ course.courseName }}</td>
             <td>{{ course.majorCode }}</td>
-            <td>{{ course.credits }}</td>
+            <td>{{ course.credit }}</td>
             <td>{{ course.courseType }}</td>
-            <td>{{ course.teachingHours }}</td>
             <td>
               <button
                 class="btn btn-sm btn-edit"
@@ -85,12 +83,20 @@
 
             <div class="form-group">
               <label>专业代码</label>
-              <input
+              <select
                 v-model="formData.majorCode"
-                type="text"
                 class="form-control"
                 required
-              />
+              >
+                <option value="">请选择专业</option>
+                <option
+                  v-for="major in majors"
+                  :key="major.majorCode"
+                  :value="major.majorCode"
+                >
+                  {{ major.majorCode }} - {{ major.majorName }}
+                </option>
+              </select>
             </div>
 
             <div class="form-group">
@@ -106,7 +112,7 @@
             <div class="form-group">
               <label>学分</label>
               <input
-                v-model.number="formData.credits"
+                v-model.number="formData.credit"
                 type="number"
                 class="form-control"
                 min="0"
@@ -122,26 +128,6 @@
                 <option value="选修课">选修课</option>
                 <option value="通识课">通识课</option>
               </select>
-            </div>
-
-            <div class="form-group">
-              <label>学时</label>
-              <input
-                v-model.number="formData.teachingHours"
-                type="number"
-                class="form-control"
-                min="0"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label>课程描述</label>
-              <textarea
-                v-model="formData.description"
-                class="form-control"
-                rows="3"
-              ></textarea>
             </div>
 
             <div class="form-actions">
@@ -166,9 +152,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { courseApi, type Course } from "../../api/courseApi";
+import { majorApi, type Major } from "../../api/majorApi";
 
 // 数据
 const courses = ref<Course[]>([]);
+const majors = ref<Major[]>([]);
 const searchQuery = ref("");
 const loading = ref(true);
 
@@ -179,11 +167,19 @@ const formData = ref<Course>({
   courseId: "",
   majorCode: "",
   courseName: "",
-  credits: 0,
+  credit: 0,
   courseType: "必修课",
-  teachingHours: 0,
-  description: "",
 });
+
+// 获取所有专业
+const fetchMajors = async () => {
+  try {
+    const data = await majorApi.getAllMajors();
+    majors.value = data;
+  } catch (error) {
+    console.error("获取专业数据失败:", error);
+  }
+};
 
 // 获取所有课程
 const fetchCourses = async () => {
@@ -219,10 +215,8 @@ const openAddCourseModal = () => {
     courseId: "",
     majorCode: "",
     courseName: "",
-    credits: 0,
+    credit: 0,
     courseType: "必修课",
-    teachingHours: 0,
-    description: "",
   };
   showModal.value = true;
 };
@@ -270,7 +264,7 @@ const deleteCourse = async (courseId: string) => {
 
 // 初始化数据
 onMounted(async () => {
-  await fetchCourses();
+  await Promise.all([fetchCourses(), fetchMajors()]);
 });
 </script>
 

@@ -9,4 +9,5 @@ import java.util.List;
 public interface ElectiveRepository extends CrudRepository<Elective, ElectiveId> {
     List<Elective> findByStudentId(String studentId);
     List<Elective> findByClassId(String classId);
+    long countByClassId(String classId);
 }

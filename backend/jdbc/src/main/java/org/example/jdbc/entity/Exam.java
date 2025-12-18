@@ -10,8 +10,8 @@ public class Exam {
     @Column(name = "exam_id")
     private String examId;
     private String examName;
-    private String examDate;
-    private Integer periods;
+    @Column(columnDefinition = "JSON")
+    private String examDateInfo;
     private String classroomId;
     private String classId;
 
@@ -31,21 +31,12 @@ public class Exam {
         this.examName = examName;
     }
 
-
-    public String getExamDate() {
-        return examDate;
+    public String getExamDateInfo() {
+        return examDateInfo;
     }
 
-    public void setExamDate(String examDate) {
-        this.examDate = examDate;
-    }
-
-    public Integer getPeriods() {
-        return periods;
-    }
-
-    public void setPeriods(Integer periods) {
-        this.periods = periods;
+    public void setExamDateInfo(String examDateInfo) {
+        this.examDateInfo = examDateInfo;
     }
 
     public String getClassroomId() {

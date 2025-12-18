@@ -1,5 +1,6 @@
 package org.example.jdbc.controller;
 
+import org.example.jdbc.dto.TeachingClassDTO;
 import org.example.jdbc.entity.ApiResponse;
 import org.example.jdbc.entity.TeachingClass;
 import org.example.jdbc.service.TeachingClassService;
@@ -40,8 +41,8 @@ public class TeachingClassController {
     }
 
     @GetMapping("/teacher/{teacherId}")
-    public ResponseEntity<ApiResponse<List<TeachingClass>>> getTeachingClassesByTeacher(@PathVariable("teacherId") String teacherId) {
-        List<TeachingClass> teachingClasses = teachingClassService.getTeachingClassesByTeacher(teacherId);
+    public ResponseEntity<ApiResponse<List<TeachingClassDTO>>> getTeachingClassesByTeacher(@PathVariable("teacherId") String teacherId) {
+        List<TeachingClassDTO> teachingClasses = teachingClassService.getTeachingClassesByTeacher(teacherId);
         return ResponseEntity.ok(ApiResponse.success("获取教师教学班列表成功", teachingClasses));
     }
 

@@ -1,13 +1,13 @@
 <template>
-  <div class="major-management">
-    <div class="page-header">
+  <div class="major-management-container">
+    <div class="management-header">
       <h2>专业管理</h2>
-      <button @click="showAddModal = true" class="add-btn">
-        <i class="icon-plus"></i> 添加专业
+      <button class="btn btn-primary" @click="openAddModal">
+        <span>➕</span> 添加专业
       </button>
     </div>
 
-    <div class="search-bar">
+    <div class="search-section">
       <input
         v-model="searchKeyword"
         placeholder="搜索专业名称或代码..."
@@ -15,54 +15,54 @@
       />
     </div>
 
-    <div class="major-list">
-      <div v-if="loading" class="loading-container">
-        <div class="loading-spinner"></div>
-        <p>正在加载专业数据...</p>
+    <div v-if="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>正在加载专业数据...</p>
+    </div>
+    <div v-else class="major-table-container">
+      <table class="major-table">
+        <thead>
+          <tr>
+            <th>专业代码</th>
+            <th>专业名称</th>
+            <th>所属学院</th>
+            <th>办公地点</th>
+            <th>联系电话</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="major in filteredMajors" :key="major.majorCode">
+            <td>{{ major.majorCode }}</td>
+            <td>{{ major.majorName }}</td>
+            <td>{{ getCollegeName(major.collegeId) }}</td>
+            <td>{{ major.office || "-" }}</td>
+            <td>{{ major.phone || "-" }}</td>
+            <td>
+              <button class="btn btn-sm btn-edit" @click="editMajor(major)">
+                编辑
+              </button>
+              <button
+                class="btn btn-sm btn-delete"
+                @click="deleteMajor(major.majorCode)"
+              >
+                删除
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-if="filteredMajors.length === 0" class="empty-state">
+        <p>暂无专业数据</p>
       </div>
-      <template v-else>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>专业代码</th>
-              <th>专业名称</th>
-              <th>所属学院</th>
-              <th>专业描述</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="major in filteredMajors" :key="major.majorCode">
-              <td>{{ major.majorCode }}</td>
-              <td>{{ major.majorName }}</td>
-              <td>{{ getCollegeName(major.collegeId) }}</td>
-              <td>{{ major.description || "-" }}</td>
-              <td class="action-buttons">
-                <button @click="editMajor(major)" class="edit-btn">
-                  <i class="icon-edit"></i> 编辑
-                </button>
-                <button
-                  @click="deleteMajor(major.majorCode)"
-                  class="delete-btn"
-                >
-                  <i class="icon-delete"></i> 删除
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-if="filteredMajors.length === 0" class="empty-state">
-          <p>暂无专业数据</p>
-        </div>
-      </template>
     </div>
 
     <!-- 添加/编辑专业模态框 -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
+    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+      <div class="modal">
         <div class="modal-header">
           <h3>{{ isEditing ? "编辑专业" : "添加专业" }}</h3>
-          <button @click="closeModal" class="close-btn">×</button>
+          <button @click="closeModal" class="modal-close">&times;</button>
         </div>
         <div class="modal-body">
           <form @submit.prevent="saveMajor">
@@ -104,20 +104,34 @@
             </div>
 
             <div class="form-group">
-              <label for="description">专业描述</label>
-              <textarea
-                id="description"
-                v-model="formData.description"
-                rows="3"
-                placeholder="请输入专业描述"
-              ></textarea>
+              <label for="office">办公地点</label>
+              <input
+                id="office"
+                v-model="formData.office"
+                type="text"
+                placeholder="请输入办公地点"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">联系电话</label>
+              <input
+                id="phone"
+                v-model="formData.phone"
+                type="text"
+                placeholder="请输入联系电话"
+              />
             </div>
 
             <div class="form-actions">
-              <button type="button" @click="closeModal" class="cancel-btn">
+              <button
+                type="button"
+                @click="closeModal"
+                class="btn btn-secondary"
+              >
                 取消
               </button>
-              <button type="submit" class="submit-btn">
+              <button type="submit" class="btn btn-primary">
                 {{ isEditing ? "更新" : "添加" }}
               </button>
             </div>
@@ -138,14 +152,14 @@ const majors = ref<Major[]>([]);
 const colleges = ref<College[]>([]);
 const searchKeyword = ref("");
 const showModal = ref(false);
-const showAddModal = ref(false);
 const isEditing = ref(false);
 const loading = ref(true);
 const formData = ref<Major>({
   majorCode: "",
   majorName: "",
   collegeId: "",
-  description: "",
+  office: "",
+  phone: "",
 });
 
 // 计算属性：筛选后的专业列表
@@ -192,7 +206,8 @@ const openAddModal = () => {
     majorCode: "",
     majorName: "",
     collegeId: "",
-    description: "",
+    office: "",
+    phone: "",
   };
   showModal.value = true;
 };
@@ -207,7 +222,6 @@ const editMajor = (major: Major) => {
 // 关闭模态框
 const closeModal = () => {
   showModal.value = false;
-  showAddModal.value = false;
 };
 
 // 保存专业
@@ -237,12 +251,6 @@ const deleteMajor = async (majorCode: string) => {
   }
 };
 
-// 监听添加按钮状态
-const unwatchAddModal = computed(() => showAddModal.value).value;
-if (unwatchAddModal) {
-  openAddModal();
-}
-
 // 组件挂载时加载数据
 onMounted(async () => {
   try {
@@ -257,75 +265,120 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.major-management {
+.major-management-container {
+  background-color: white;
+  border-radius: 8px;
   padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.page-header {
+.management-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.page-header h2 {
+.management-header h2 {
   margin: 0;
   color: #333;
+  font-size: 1.5rem;
 }
 
-.add-btn {
-  background-color: #409eff;
-  color: white;
+.btn {
+  padding: 10px 16px;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.add-btn:hover {
-  background-color: #66b1ff;
+.btn-primary {
+  background-color: #3498db;
+  color: white;
 }
 
-.search-bar {
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
+}
+
+.btn-edit {
+  background-color: #3498db;
+  color: white;
+  padding: 6px 12px;
+  margin-right: 8px;
+}
+
+.btn-edit:hover {
+  background-color: #2980b9;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+  color: white;
+  padding: 6px 12px;
+}
+
+.btn-delete:hover {
+  background-color: #c0392b;
+}
+
+.btn-sm {
+  font-size: 0.8rem;
+  padding: 5px 10px;
+}
+
+.search-section {
   margin-bottom: 20px;
 }
 
 .search-input {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  font-size: 14px;
+  max-width: 400px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: #409eff;
+.major-table-container {
+  overflow-x: auto;
 }
 
-.data-table {
+.major-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: white;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
-.data-table th,
-.data-table td {
+.major-table th,
+.major-table td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid #eee;
 }
 
-.data-table th {
-  background-color: #f5f7fa;
-  font-weight: bold;
-  color: #303133;
+.major-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
 }
 
-.data-table tr:hover {
-  background-color: #f5f7fa;
+.major-table tr:hover {
+  background-color: #f5f5f5;
 }
 
 .action-buttons {
@@ -383,41 +436,42 @@ onMounted(async () => {
   z-index: 1000;
 }
 
-.modal-content {
+.modal {
   background-color: white;
   border-radius: 8px;
-  width: 500px;
-  max-width: 90%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #ebeef5;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: #303133;
+  color: #333;
 }
 
-.close-btn {
+.modal-close {
   background: none;
   border: none;
-  font-size: 20px;
-  color: #909399;
+  font-size: 1.5rem;
   cursor: pointer;
-}
-
-.close-btn:hover {
-  color: #606266;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-body {
-  padding: 16px;
+  padding: 20px;
 }
 
 .form-group {
@@ -426,61 +480,48 @@ onMounted(async () => {
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
-  color: #303133;
+  margin-bottom: 6px;
   font-weight: 500;
+  color: #333;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #409eff;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
   margin-top: 24px;
 }
 
-.cancel-btn {
-  background-color: #f5f7fa;
-  color: #606266;
-  border: 1px solid #dcdfe6;
+.form-actions .btn {
   padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
 }
 
-.cancel-btn:hover {
-  background-color: #e4e7ed;
-}
-
-.submit-btn {
-  background-color: #409eff;
+.btn.btn-secondary {
+  background-color: #95a5a6;
   color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
 }
 
-.submit-btn:hover {
-  background-color: #66b1ff;
+.btn.btn-secondary:hover {
+  background-color: #7f8c8d;
+}
+
+.btn.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn.btn-primary:hover {
+  background-color: #2980b9;
 }
 
 /* 加载动画样式 */
